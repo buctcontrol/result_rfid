@@ -164,7 +164,7 @@ struct interface * cliFindClassById(uint nClsId)
 	return NULL;
 }
 
-int makeTitle(char* pTitle, unsigned int group, unsigned int order, unsigned int rider_num)
+int makeTitle(char* pTitle, unsigned int group, struct interface *pCls, unsigned int order, unsigned int rider_num)
 {
     if(!group)
     {
@@ -174,13 +174,20 @@ int makeTitle(char* pTitle, unsigned int group, unsigned int order, unsigned int
     {
         if(order <= rider_num)
         {
-            if(order > 0 && order < 4)
+            if((pCls->pure_sec == 86399) && (pCls->pure_msec == 999))
             {
-                sprintf(pTitle, "%s%s", groupStr[group].str, titleStr[order - 1].str);
+                sprintf(pTitle, "%s", groupStr[group].str);
             }
             else
             {
-                sprintf(pTitle, "%s%03d", groupStr[group].str, order);
+                if(order > 0 && order < 4)
+                {
+                    sprintf(pTitle, "%s%s", groupStr[group].str, titleStr[order - 1].str);
+                }
+                else
+                {
+                    sprintf(pTitle, "%s%03d", groupStr[group].str, order);
+                }
             }
         }
         else
@@ -238,7 +245,7 @@ int main(void)
         memset(title, 0, sizeof(title));
         if(i < rider_num)
         {
-            makeTitle(title, riders[i].group, pCls->order, rider_num);
+            makeTitle(title, riders[i].group, pCls, pCls->order, rider_num);
             if((pCls->pure_sec == 86399) && (pCls->pure_msec == 999))
             {
                 printf("HIBP: %03d  %s  %s  DNF          -> %s\n", i+1, 
@@ -272,7 +279,7 @@ int main(void)
         }
         else
         {
-            makeTitle(title, riders[i].group, rider_max+1, rider_num);
+            makeTitle(title, riders[i].group, pCls, rider_max+1, rider_num);
             printf("HIBP: %03d  %s  %s  DNS          -> %s\n", i+1, 
                     riders[i].name, \
                     riders[i].team, \
