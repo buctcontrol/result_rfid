@@ -239,22 +239,36 @@ int main(void)
         if(i < rider_num)
         {
             makeTitle(title, riders[i].group, pCls->order, rider_num);
-            printf("HIBP: %03d  %s  %s  %02d:%02d:%02d.%03d -> %s\n", pCls->id, 
-                    riders[i].name, \
-                    riders[i].team, \
-                    (pCls->pure_sec/60/60)%24, \
-                    (pCls->pure_sec/60)%60, \
-                    (pCls->pure_sec%60), \
-                    pCls->pure_msec, \
-                    title);
-            sprintf(cmd, "echo '<tr><td>%03d</td><td>%s</td><td>%s</td><td>%02d:%02d:%02d.%03d</td><td>%s</td></tr>' >> ./result.html", pCls->id, 
-                    riders[i].name, \
-                    riders[i].team, \
-                    (pCls->pure_sec/60/60)%24, \
-                    (pCls->pure_sec/60)%60, \
-                    (pCls->pure_sec%60), \
-                    pCls->pure_msec, \
-                    title);
+            if((pCls->pure_sec == 86399) && (pCls->pure_msec == 999))
+            {
+                printf("HIBP: %03d  %s  %s  DNF          -> %s\n", i+1, 
+                       riders[i].name, \
+                       riders[i].team, \
+                       title);
+                sprintf(cmd, "echo '<tr><td>%03d</td><td>%s</td><td>%s</td><td>DNS</td><td>%s</td></tr>' >> ./result.html", i+1, 
+                        riders[i].name, \
+                        riders[i].team, \
+                        title);
+            }
+            else
+            {
+                printf("HIBP: %03d  %s  %s  %02d:%02d:%02d.%03d -> %s\n", pCls->id, 
+                       riders[i].name, \
+                       riders[i].team, \
+                       (pCls->pure_sec/60/60)%24, \
+                       (pCls->pure_sec/60)%60, \
+                       (pCls->pure_sec%60), \
+                       pCls->pure_msec, \
+                       title);
+                sprintf(cmd, "echo '<tr><td>%03d</td><td>%s</td><td>%s</td><td>%02d:%02d:%02d.%03d</td><td>%s</td></tr>' >> ./result.html", pCls->id, 
+                        riders[i].name, \
+                        riders[i].team, \
+                        (pCls->pure_sec/60/60)%24, \
+                        (pCls->pure_sec/60)%60, \
+                        (pCls->pure_sec%60), \
+                        pCls->pure_msec, \
+                        title);
+            }
         }
         else
         {
