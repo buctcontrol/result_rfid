@@ -100,8 +100,10 @@ static int if_readlist_proc(char *target, int type)
         s = get_name(name, buf);    
         ife = (struct interface *)malloc(sizeof(struct interface));
         memset(ife, sizeof(struct interface), 1);
+        ife->pure_sec  = 86399;
+        ife->pure_msec = 999;
         get_dev_fields(s, ife, type);
-        ife->id = count;
+        //ife->id = count;
         if (target && strcmp(target,name))
         {
             printf("strcmp err, break\n");
@@ -114,7 +116,7 @@ static int if_readlist_proc(char *target, int type)
                 break;
 
             case TYPE_END:
-                pCur = cliFindClassById(count);
+                pCur = cliFindClassById(ife->end_id);
                 if(pCur != NULL)
                 {
                     pCur->end_sec = ife->end_sec;
