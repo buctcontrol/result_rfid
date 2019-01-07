@@ -123,10 +123,11 @@ static int if_readlist_proc(char *target, int type)
 #else
                 pCur = cliFindClassById(count);
 #endif
-                if(pCur != NULL)
+                if((pCur != NULL) && (!pCur->end_filled))
                 {
                     pCur->end_sec = ife->end_sec;
                     pCur->end_msec = ife->end_msec;
+                    pCur->end_filled = 1;   //for drop dup
                     if(pCur->end_msec < pCur->msec)
                     {
                         pCur->pure_sec = (pCur->end_sec - 1) - pCur->sec;
