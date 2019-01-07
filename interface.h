@@ -13,6 +13,7 @@ struct interface {
     unsigned int pure_sec;	/* pure seconds */
     unsigned int pure_msec;	/* pure millisecond */
     unsigned int order;     /* order */
+    unsigned int end_filled;/* we have filled the end time */
 };
 
 int get_dev_fields(char *bp, struct interface *ife, int type);
