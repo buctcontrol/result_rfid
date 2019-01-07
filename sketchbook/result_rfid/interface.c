@@ -7,6 +7,8 @@
 #include "interface.h"
 #include "riders.h"
 
+#define WITH_RFID       1
+
 struct interface g_ife;
 
 char *get_name(char *name, char *p)
@@ -116,7 +118,11 @@ static int if_readlist_proc(char *target, int type)
                 break;
 
             case TYPE_END:
+#ifdef WITH_RFID
                 pCur = cliFindClassById(ife->end_id);
+#else
+                pCur = cliFindClassById(count);
+#endif
                 if(pCur != NULL)
                 {
                     pCur->end_sec = ife->end_sec;
