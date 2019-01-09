@@ -21,8 +21,10 @@ enum
     NEWBIE      = 1,
     HARDTAIL    = 2,
     WOMAN       = 3,
-    OPEN        = 4,
-    ELETE       = 5,
+    MAN         = 4,
+    OPEN        = 5,
+    ELETE       = 6,
+    MASTER      = 7,
 };
 
 typedef struct
@@ -40,8 +42,10 @@ HIBPGroup groupStr[] = {
     {"新人组"},
     {"硬尾组"},
     {"女子组"},
+    {"男子组"},
     {"大众组"},
-    {"精英组"}
+    {"精英组"},
+    {"大师组"}
 };
 
 HIBPTitle titleStr[] = {
