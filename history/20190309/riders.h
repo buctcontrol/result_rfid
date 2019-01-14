@@ -21,9 +21,10 @@ enum
     NEWBIE      = 1,
     HARDTAIL    = 2,
     WOMAN       = 3,
-    OPEN        = 4,
-    ELITE       = 5,
-    MASTER      = 6,
+    MAN         = 4,
+    OPEN        = 5,
+    ELITE       = 6,
+    MASTER      = 7,
 };
 
 typedef struct
@@ -41,6 +42,7 @@ HIBPGroup groupStr[] = {
     {"新人组"},
     {"硬尾组"},
     {"女子组"},
+    {"男子组"},
     {"大众组"},
     {"精英组"},
     {"大师组"}
@@ -80,7 +82,6 @@ HIBPRiderInfo riders[] = {
     {"桑悟超  ", "西虹试飞客队            ",    NEWBIE},   
     {"丁凯    ", "西虹试飞客队            ",    NEWBIE},   
     {"蒋永斌  ", "西虹试飞客队            ",    NEWBIE},   
-    {"任凯    ", "西虹试飞客队            ",    NEWBIE},   
     {"陈黎升  ", "鬼魅仔车队              ",    NEWBIE},
     {"叶万达  ", "鬼魅仔车队              ",    NEWBIE},
     {"周郑    ", "TREK杭州轮与路车队      ",    NEWBIE},   
@@ -96,6 +97,7 @@ HIBPRiderInfo riders[] = {
     {"金也    ", "杭州捷奥山地车          ",    NEWBIE},   
     {"陆成涛  ", "杭州捷奥山地车          ",    NEWBIE},   
     {"沈陆晓冬", "合肥重车群              ",    NEWBIE},   
+    {"任凯    ", "西虹试飞客队            ",    NEWBIE},   
     {"Ash     ", "HIBP                    ",    NEWBIE},   
     {"高逍遥  ", "West coast x Gravity lab",    NEWBIE},
     {"毕笑闻  ", "West coast x Gravity lab",    NEWBIE},
@@ -150,4 +152,5 @@ HIBPRiderInfo riders[] = {
     {"梅雨龙  ", "假日单车山地队          ",    ELITE},    
     {"叶晨琦  ", "The King Of Fastest     ",    ELITE},    
     {"张剑飞  ", "HIBP                    ",    ELITE},    
+    {"周晓龙  ", "双轮汇 SLH Racing       ",    ELITE},    
 };
