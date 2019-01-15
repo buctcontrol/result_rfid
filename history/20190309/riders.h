@@ -15,6 +15,8 @@
  *
  * =====================================================================================
  */
+#define _PATH_START		"/home/pi/autoresult.txt"
+#define _PATH_END		"/home/pi/end_result.txt"
 enum
 {
     CLEANER     = 0,

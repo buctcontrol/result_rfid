@@ -15,6 +15,8 @@
  *
  * =====================================================================================
  */
+#define _PATH_START		"./autoresult.txt"
+#define _PATH_END		"./end_result.txt"
 enum
 {
     CLEANER     = 0,
