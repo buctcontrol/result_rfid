@@ -19,5 +19,3 @@ struct interface {
 int get_dev_fields(char *bp, struct interface *ife, int type);
 struct interface * cliFindClassById(uint nClsId);
 
-#define _PATH_START		"./autoresult.txt"
-#define _PATH_END		"./end_result.txt"
