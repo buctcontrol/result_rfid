@@ -12,6 +12,8 @@ struct interface {
     unsigned int end_msec;	/* end millisecond */
     unsigned int pure_sec;	/* pure seconds */
     unsigned int pure_msec;	/* pure millisecond */
+    unsigned int gap_sec;   /* gap seconds */
+    unsigned int gap_msec;  /* gap millisecond */
     unsigned int order;     /* order */
     unsigned int end_filled;/* we have filled the end time */
 };
