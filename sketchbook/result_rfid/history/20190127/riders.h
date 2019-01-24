@@ -26,6 +26,7 @@ enum
     OPEN        = 4,
     ELITE       = 5,
     MASTER      = 6,
+    MAX         = 7
 };
 
 typedef struct
