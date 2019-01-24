@@ -15,8 +15,8 @@
  *
  * =====================================================================================
  */
-#define _PATH_START		"/home/pi/autoresult_zero_w_002.txt"
-#define _PATH_END		"/home/pi/end_result.txt"
+#define _PATH_START		"./autoresult.txt"
+#define _PATH_END		"./end_result.txt"
 enum
 {
     CLEANER     = 0,
@@ -27,6 +27,7 @@ enum
     OPEN        = 5,
     ELETE       = 6,
     MASTER      = 7,
+    MAX         = 8
 };
 
 typedef struct
