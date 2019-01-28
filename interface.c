@@ -239,13 +239,16 @@ int main(void)
     for(i = 0; i< rider_num; i++)
     {
         pCur = cliFindClassById(rider_id[i]);
-        pCur->order = 1;
-        list_for_each(pPos, &g_ife.list)
+        if(pCur)
         {
-            pCls = list_entry(pPos, struct interface, list);
-            if((pCls->group == pCur->group) && ((pCur->pure_sec > pCls->pure_sec) || ((pCur->pure_sec == pCls->pure_sec) && (pCur->pure_msec > pCls->pure_msec))))
+            pCur->order = 1;
+            list_for_each(pPos, &g_ife.list)
             {
-                pCur->order++;
+                pCls = list_entry(pPos, struct interface, list);
+                if((pCls->group == pCur->group) && ((pCur->pure_sec > pCls->pure_sec) || ((pCur->pure_sec == pCls->pure_sec) && (pCur->pure_msec > pCls->pure_msec))))
+                {
+                    pCur->order++;
+                }
             }
         }
     }
@@ -253,16 +256,19 @@ int main(void)
     for(i = 0; i< rider_num; i++)
     {
         pCur = cliFindClassById(rider_id[i]);
-        if(pCur->order == 1)
+        if(pCur)
         {
-            memcpy(&g_max[pCur->group], pCur, sizeof(struct interface));
-            printf("HIBP: %03d  %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d\n", pCur->id,\
-                    (pCur->sec/60/60+8)%24, (pCur->sec/60)%60, pCur->sec%60, pCur->msec,\
-                    (pCur->end_sec/60/60+8)%24, (pCur->end_sec/60)%60, pCur->end_sec%60, pCur->end_msec,\
-                    (pCur->pure_sec/60/60)%24,\
-                    (pCur->pure_sec/60)%60,\
-                    (pCur->pure_sec%60),\
-                    pCur->pure_msec);
+            if(pCur->order == 1)
+            {
+                memcpy(&g_max[pCur->group], pCur, sizeof(struct interface));
+                printf("HIBP: %03d  %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d\n", pCur->id,\
+                        (pCur->sec/60/60+8)%24, (pCur->sec/60)%60, pCur->sec%60, pCur->msec,\
+                        (pCur->end_sec/60/60+8)%24, (pCur->end_sec/60)%60, pCur->end_sec%60, pCur->end_msec,\
+                        (pCur->pure_sec/60/60)%24,\
+                        (pCur->pure_sec/60)%60,\
+                        (pCur->pure_sec%60),\
+                        pCur->pure_msec);
+            }
         }
     }
 
@@ -270,76 +276,85 @@ int main(void)
     for(i = 0; i< rider_num; i++)
     {
         pCur = cliFindClassById(rider_id[i]);
-        if(pCur->pure_msec < g_max[pCur->group].pure_msec)
+        if(pCur)
         {
-            pCur->gap_sec = (pCur->pure_sec - 1) - g_max[pCur->group].pure_sec;
-            pCur->gap_msec = 1000 + pCur->pure_msec - g_max[pCur->group].pure_msec;
-        }
-        else
-        {
-            pCur->gap_sec = pCur->pure_sec - g_max[pCur->group].pure_sec;
-            pCur->gap_msec = pCur->pure_msec - g_max[pCur->group].pure_msec;
+            if(pCur->pure_msec < g_max[pCur->group].pure_msec)
+            {
+                pCur->gap_sec = (pCur->pure_sec - 1) - g_max[pCur->group].pure_sec;
+                pCur->gap_msec = 1000 + pCur->pure_msec - g_max[pCur->group].pure_msec;
+            }
+            else
+            {
+                pCur->gap_sec = pCur->pure_sec - g_max[pCur->group].pure_sec;
+                pCur->gap_msec = pCur->pure_msec - g_max[pCur->group].pure_msec;
+            }
         }
     }
 
     system("rm -rf ./result.html");
     for(i = 0; i< rider_max; i++)
-	{
-        pCls = cliFindClassById(rider_id[i]);
-        memset(cmd, 0, sizeof(cmd));
-        memset(title, 0, sizeof(title));
-        if(i < rider_num)
+    {
+        if(rider_id[i] != 0)
         {
-            makeTitle(title, riders[rider_id[i] - 1].group, pCls, pCls->order, rider_num);
-            if((pCls->pure_sec == 86399) && (pCls->pure_msec == 999))
+            pCls = cliFindClassById(rider_id[i]);
+            if(pCls)
             {
-                printf("HIBP: %03d  %s  %s  %02d:%02d:%02d.%03d  DNF          -> %s\n", pCls->id, \
-                       riders[rider_id[i] - 1 ].name, \
-                       riders[rider_id[i] - 1].team, \
-                       (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
-                       title);
-                sprintf(cmd, "echo '<tr><td>%03d</td><td>%s</td><td>%s</td><td>%02d:%02d:%02d.%03d</td><td>-</td><td>DNF</td><td>-</td><td>%s</td></tr>' >> ./result.html", pCls->id,\
-                        riders[rider_id[i] - 1].name,\
-                        riders[rider_id[i] - 1].team,\
-                        (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
-                        title);
+                memset(cmd, 0, sizeof(cmd));
+                memset(title, 0, sizeof(title));
+                if(i < rider_num)
+                {
+                    makeTitle(title, riders[rider_id[i] - 1].group, pCls, pCls->order, rider_num);
+                    if((pCls->pure_sec == 86399) && (pCls->pure_msec == 999))
+                    {
+                        printf("HIBP: %03d  %s  %s  %02d:%02d:%02d.%03d  DNF          -> %s\n", pCls->id, \
+                                riders[rider_id[i] - 1 ].name, \
+                                riders[rider_id[i] - 1].team, \
+                                (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
+                                title);
+                        sprintf(cmd, "echo '<tr><td>%03d</td><td>%s</td><td>%s</td><td>%02d:%02d:%02d.%03d</td><td>-</td><td>DNF</td><td>-</td><td>%s</td></tr>' >> ./result.html", pCls->id,\
+                                riders[rider_id[i] - 1].name,\
+                                riders[rider_id[i] - 1].team,\
+                                (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
+                                title);
+                    }
+                    else
+                    {
+                        printf("HIBP: %03d  %s  %s  %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    +%02d:%02d:%02d.%03d ->  %s\n", pCls->id,\
+                                riders[rider_id[i] - 1].name, \
+                                riders[rider_id[i] - 1].team, \
+                                (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
+                                (pCls->end_sec/60/60+8)%24, (pCls->end_sec/60)%60, pCls->end_sec%60, pCls->end_msec,\
+                                (pCls->pure_sec/60/60)%24, (pCls->pure_sec/60)%60, (pCls->pure_sec%60), pCls->pure_msec,\
+                                (pCls->gap_sec/60/60)%24, (pCls->gap_sec/60)%60, pCls->gap_sec%60, pCls->gap_msec,\
+                                title);
+                        sprintf(cmd, "echo '<tr><td>%03d</td><td>%s</td><td>%s</td><td>%02d:%02d:%02d.%03d</td><td>%02d:%02d:%02d.%03d</td><td>%02d:%02d:%02d.%03d</td><td>+%02d:%02d:%02d.%03d</td><td>%s</td></tr>' >> ./result.html", pCls->id,\
+                                riders[rider_id[i] - 1].name, \
+                                riders[rider_id[i] - 1].team, \
+                                (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
+                                (pCls->end_sec/60/60+8)%24, (pCls->end_sec/60)%60, pCls->end_sec%60, pCls->end_msec,\
+                                (pCls->pure_sec/60/60)%24, (pCls->pure_sec/60)%60, (pCls->pure_sec%60), pCls->pure_msec,\
+                                (pCls->gap_sec/60/60)%24, (pCls->gap_sec/60)%60, pCls->gap_sec%60, pCls->gap_msec,\
+                                title);
+                    }
+                }
             }
+#if 0
             else
             {
-                printf("HIBP: %03d  %s  %s  %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    +%02d:%02d:%02d.%03d ->  %s\n", pCls->id,\
-                        riders[rider_id[i] - 1].name, \
-                        riders[rider_id[i] - 1].team, \
-                        (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
-                        (pCls->end_sec/60/60+8)%24, (pCls->end_sec/60)%60, pCls->end_sec%60, pCls->end_msec,\
-                        (pCls->pure_sec/60/60)%24, (pCls->pure_sec/60)%60, (pCls->pure_sec%60), pCls->pure_msec,\
-                        (pCls->gap_sec/60/60)%24, (pCls->gap_sec/60)%60, pCls->gap_sec%60, pCls->gap_msec,\
+                makeTitle(title, riders[i].group, pCls, rider_max+1, rider_num);
+                printf("HIBP: %03d  %s  %s  DNS          -> %s\n", i+1,\
+                        riders[i].name,\
+                        riders[i].team,\
                         title);
-                sprintf(cmd, "echo '<tr><td>%03d</td><td>%s</td><td>%s</td><td>%02d:%02d:%02d.%03d</td><td>%02d:%02d:%02d.%03d</td><td>%02d:%02d:%02d.%03d</td><td>+%02d:%02d:%02d.%03d</td><td>%s</td></tr>' >> ./result.html", pCls->id,\
-                        riders[rider_id[i] - 1].name, \
-                        riders[rider_id[i] - 1].team, \
-                        (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
-                        (pCls->end_sec/60/60+8)%24, (pCls->end_sec/60)%60, pCls->end_sec%60, pCls->end_msec,\
-                        (pCls->pure_sec/60/60)%24, (pCls->pure_sec/60)%60, (pCls->pure_sec%60), pCls->pure_msec,\
-                        (pCls->gap_sec/60/60)%24, (pCls->gap_sec/60)%60, pCls->gap_sec%60, pCls->gap_msec,\
+                sprintf(cmd, "echo '<tr><td>%03d</td><td>%s</td><td>%s</td><td>-</td><td>-</td><td>DNS</td><td>%s</td></tr>' >> ./result.html", i+1,\
+                        riders[i].name,\
+                        riders[i].team,\
                         title);
             }
-        }
-#if 0
-        else
-        {
-            makeTitle(title, riders[i].group, pCls, rider_max+1, rider_num);
-            printf("HIBP: %03d  %s  %s  DNS          -> %s\n", i+1,\
-                    riders[i].name,\
-                    riders[i].team,\
-                    title);
-            sprintf(cmd, "echo '<tr><td>%03d</td><td>%s</td><td>%s</td><td>-</td><td>-</td><td>DNS</td><td>%s</td></tr>' >> ./result.html", i+1,\
-                    riders[i].name,\
-                    riders[i].team,\
-                    title);
-        }
 #endif
-        system(cmd);
-	}
+            system(cmd);
+        }
+    }
     for(i = 0; i< rider_max; i++)
 	{
         pCls = cliFindClassById(i+1);
