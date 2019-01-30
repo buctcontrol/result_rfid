@@ -41,7 +41,7 @@ typedef struct
 }HIBPTitle;
 
 HIBPGroup groupStr[] = {
-    {"清道夫"},
+    {"荣誉领骑"},
     {"新人组"},
     {"硬尾组"},
     {"女子组"},
