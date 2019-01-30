@@ -63,6 +63,7 @@ typedef struct
 }HIBPRiderInfo;
 
 HIBPRiderInfo riders[] = {
+    {"骆沙舟  ", "杭州假日单车山地队      ",    CLEANER},
     {"吕阳    ", "HIBP                    ",    MASTER}, 
     {"杨立忠  ", "HIBP                    ",    MASTER}, 
     {"詹森    ", "鬼魅仔车队              ",    MASTER}, 
