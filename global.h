@@ -70,7 +70,7 @@ enum
     WOMAN       = 3,
     MAN         = 4,
     OPEN        = 5,
-    ELETE       = 6,
+    ELITE       = 6,
     MASTER      = 7,
     MAX         = 8
 };

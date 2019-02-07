@@ -15,53 +15,9 @@
  *
  * =====================================================================================
  */
-#define _PATH_START		"/home/pi/autoresult.txt"
-#define _PATH_END		"/home/pi/end_result.txt"
-enum
-{
-    CLEANER     = 0,
-    NEWBIE      = 1,
-    HARDTAIL    = 2,
-    WOMAN       = 3,
-    MAN         = 4,
-    OPEN        = 5,
-    ELITE       = 6,
-    MASTER      = 7,
-};
-
-typedef struct
-{
-    char    str[32];
-}HIBPGroup;
-
-typedef struct
-{
-    char    str[32];
-}HIBPTitle;
-
-HIBPGroup groupStr[] = {
-    {"清道夫"},
-    {"新人组"},
-    {"硬尾组"},
-    {"女子组"},
-    {"男子组"},
-    {"大众组"},
-    {"精英组"},
-    {"大师组"}
-};
-
-HIBPTitle titleStr[] = {
-    {"冠军"},
-    {"亚军"},
-    {"季军"}
-};
-
-typedef struct
-{
-    char            name[32];
-    char            team[128];
-    unsigned int    group;
-}HIBPRiderInfo;
+#include "global.h"
+#define _PATH_START		"./autoresult.txt"
+#define _PATH_END		"./end_result.txt"
 
 HIBPRiderInfo riders[] = {
     {"张佳莉  ", "鬼魅仔车队              ",    WOMAN}, 
@@ -77,6 +33,8 @@ HIBPRiderInfo riders[] = {
     {"周炜恒  ", "西虹试飞客队            ",    NEWBIE},   
     {"吕阳    ", "HIBP                    ",    NEWBIE},   
     {"吕昊翔  ", "个人                    ",    NEWBIE},    
+    {"常容涛  ", "MCC club                ",    NEWBIE},    
+    {"黄嘉朋  ", "dirt kids               ",    NEWBIE},    
     {"周屹天  ", "苏州风行单车            ",    NEWBIE},   
     {"郑轶辉  ", "HangZhou Giant          ",    NEWBIE},
     {"喻杰    ", "HangZhou Giant          ",    NEWBIE},   
@@ -137,6 +95,7 @@ HIBPRiderInfo riders[] = {
     {"郎程威  ", "正儿八紧车队            ",    OPEN},     
     {"马琰    ", "假日单车山地队          ",    OPEN},     
     {"陈敏坤  ", "HIBP                    ",    OPEN},     
+    {"应礼筋  ", "小溪速降                ",    OPEN},     
     {"俞斌    ", "追梦                    ",    OPEN},
     {"甄东旭  ", "West coast x Gravity lab",    OPEN},      
     {"何鑫    ", "West coast x Gravity lab",    OPEN},
@@ -151,6 +110,9 @@ HIBPRiderInfo riders[] = {
     {"张秀标  ", "个人                    ",    MASTER},   
     {"高涛    ", "速降老男人              ",    MASTER},   
     {"刘涵    ", "杭州捷奥山地车          ",    ELITE},    
+    {"方子凡  ", "双轮汇SLH Racing        ",    ELITE},    
+    {"赵南    ", "个人                    ",    ELITE},    
+    {"黄立观  ", "Banshee Rock Team       ",    ELITE},    
     {"梅雨龙  ", "假日单车山地队          ",    ELITE},    
     {"叶晨琦  ", "The King Of Fastest     ",    ELITE},    
     {"张剑飞  ", "HIBP                    ",    ELITE},    
