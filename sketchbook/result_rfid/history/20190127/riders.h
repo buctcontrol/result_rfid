@@ -15,52 +15,9 @@
  *
  * =====================================================================================
  */
-#define _PATH_START		"/home/pi/autoresult_zero_w_002.txt"
-#define _PATH_END		"/home/pi/end_result.txt"
-enum
-{
-    CLEANER     = 0,
-    NEWBIE      = 1,
-    HARDTAIL    = 2,
-    WOMAN       = 3,
-    OPEN        = 4,
-    ELITE       = 5,
-    MASTER      = 6,
-    MAX         = 7
-};
-
-typedef struct
-{
-    char    str[32];
-}HIBPGroup;
-
-typedef struct
-{
-    char    str[32];
-}HIBPTitle;
-
-HIBPGroup groupStr[] = {
-    {"清道夫"},
-    {"新人组"},
-    {"硬尾组"},
-    {"女子组"},
-    {"大众组"},
-    {"精英组"},
-    {"大师组"}
-};
-
-HIBPTitle titleStr[] = {
-    {"冠军"},
-    {"亚军"},
-    {"季军"}
-};
-
-typedef struct
-{
-    char            name[32];
-    char            team[128];
-    unsigned int    group;
-}HIBPRiderInfo;
+#include "global.h"
+#define _PATH_START		"./history/20190127/autoresult_zero_w_002.txt"
+#define _PATH_END		"./history/20190127/end_result.txt"
 
 HIBPRiderInfo riders[] = {
     {"骆沙舟  ", "杭州假日单车山地队      ",    CLEANER},
@@ -82,3 +39,4 @@ HIBPRiderInfo riders[] = {
     {"黄立观  ", "Banshee Rock Team       ",    MASTER},    
     {"雷星    ", "HangZhou Giant Racing   ",    MASTER},    
 };
+
