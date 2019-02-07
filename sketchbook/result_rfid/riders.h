@@ -15,55 +15,9 @@
  *
  * =====================================================================================
  */
+#include "global.h"
 #define _PATH_START		"./autoresult.txt"
 #define _PATH_END		"./end_result.txt"
-enum
-{
-    CLEANER     = 0,
-    NEWBIE      = 1,
-    HARDTAIL    = 2,
-    WOMAN       = 3,
-    MAN         = 4,
-    OPEN        = 5,
-    ELETE       = 6,
-    MASTER      = 7,
-    MAX         = 8
-};
-
-typedef struct
-{
-    char    str[32];
-}HIBPGroup;
-
-typedef struct
-{
-    char    str[32];
-}HIBPTitle;
-
-HIBPGroup groupStr[] = {
-    {"荣誉领骑"},
-    {"新人组"},
-    {"硬尾组"},
-    {"女子组"},
-    {"男子组"},
-    {"大众组"},
-    {"精英组"},
-    {"大师组"}
-};
-
-HIBPTitle titleStr[] = {
-    {"冠军"},
-    {"亚军"},
-    {"季军"}
-};
-
-typedef struct
-{
-    char            name[32];
-    char            team[128];
-    unsigned int    group;
-}HIBPRiderInfo;
-
 HIBPRiderInfo riders[] = {
     {"夜雪  ",  "杭州捷奥山地车   ",    CLEANER},
     {"鬼魅仔",  "鬼魅仔车队       ",    WOMAN},
