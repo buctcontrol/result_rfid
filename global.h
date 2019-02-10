@@ -20,6 +20,8 @@
 #define    APP_SUCCESS                       0
 #define    APP_FAIL                        (-1)
 
+#define _MAX_RIDERS		512
+
 typedef unsigned char uchar;
 typedef unsigned int uint;
 typedef unsigned short int ushort;
@@ -99,5 +101,10 @@ typedef struct
     unsigned int    group;
 }HIBPRiderInfo;
 
+typedef struct
+{
+	int riders[_MAX_RIDERS];
+	int nriders;
+}HIBPGroupRider;
 #endif
 
