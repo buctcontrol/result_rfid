@@ -103,6 +103,7 @@ typedef struct
 
 typedef struct
 {
+	int group;
 	int riders[_MAX_RIDERS];
 	int nriders;
 }HIBPGroupRider;
