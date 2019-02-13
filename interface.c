@@ -343,7 +343,9 @@ void generate_result(HIBPGroupRider group_riders[], int ngroups )
 			continue;
 
 		printf("\nHIBP: %s\n", groupStr[i].str);
-		sprintf(cmd, "echo '<font size=\"5\">%s</font>' >> ./result.html", groupStr[i].str);
+		sprintf(cmd, "echo '<center><font size=\"5\">%s</font></center>' >> ./result.html", groupStr[i].str);
+		system(cmd);
+		sprintf(cmd, "echo '</table> <br/>' >> ./result.html");
 		system(cmd);
 		sprintf(cmd, "echo '<table id=\"t01\"> <tr><th style=\"width:7%\">排名</th><th style=\"width:5%\">号码</th><th style=\"width:12%\">姓名</th><th style=\"width:20%\">车队</th><th style=\"width:14%\">发车时间</th><th style=\"width:14%\">到达时间</th><th style=\"width:14%\">成绩</th><th style=\"width:14%\">时间差</th></tr>' >> result.html");
 		system(cmd);
@@ -376,7 +378,13 @@ int main(void)
 	list_for_each(pPos, &g_ife.list)
 	{
 		pCls = list_entry(pPos, struct interface, list);
-		pCls->group = riders[rider_num].group;
+		if(pCls->id<0 || pCls->id >= rider_max)
+		{
+			printf("rider id:%d error!\n", pCls->id);
+			continue;
+		}
+
+		pCls->group = riders[pCls->id].group;
 		rider_id[rider_num] = pCls->id;
 		rider_num++;
 	}
