@@ -211,20 +211,30 @@ int makeTitle(char* pTitle, unsigned int group, struct interface *pCls, unsigned
 
 void init_group_rider(HIBPGroupRider group_riders[], HIBPRiderInfo riders[], int ngroups, int nriders)
 {
-	int i,j,k=0;
-	for(i=0; i<ngroups; i++)
+	int i=0,j=0,k=0;
+	for(j=0 ; j<nriders; j++)
 	{
-		for(j=0, k=0; j<nriders; j++)
+		if( j== 0 )
 		{
-			if(riders[j].group == i )
-			{
-				group_riders[i].riders[k] = j;
-				k++;
-			}
-			
+			group_riders[i].group = riders[j].group;
 		}
-		group_riders[i].nriders = k;
+
+		if(group_riders[i].group == riders[j].group )
+		{
+			group_riders[i].riders[k] = j;
+			k++;
+		}
+		else
+		{
+			group_riders[i].nriders = k;
+			i++;
+			k=0;
+			group_riders[i].riders[k] = j;
+			k++;
+			group_riders[i].group = riders[j].group;
+		}
 	}
+	group_riders[i].nriders = k;
 }
 
 void sort_riders(int riders_id[], int nriders)
@@ -256,7 +266,8 @@ void sort_groups(HIBPGroupRider group_riders[], int ngroups )
 	int i;
 	for(i = 0; i< ngroups; i++)
 	{
-		sort_riders(group_riders[i].riders, group_riders[i].nriders);
+		if(group_riders[i].nriders > 0 )
+			sort_riders(group_riders[i].riders, group_riders[i].nriders);
 	}
 }
 
@@ -342,8 +353,8 @@ void generate_result(HIBPGroupRider group_riders[], int ngroups )
 		if(group_riders[i].nriders == 0 )
 			continue;
 
-		printf("\nHIBP: %s\n", groupStr[i].str);
-		sprintf(cmd, "echo '<center><font size=\"5\">%s</font></center>' >> ./result.html", groupStr[i].str);
+		printf("\nHIBP: %s\n", groupStr[group_riders[i].group].str);
+		sprintf(cmd, "echo '<center><font size=\"5\">%s</font></center>' >> ./result.html", groupStr[group_riders[i].group].str);
 		system(cmd);
 		sprintf(cmd, "echo '</table> <br/>' >> ./result.html");
 		system(cmd);
