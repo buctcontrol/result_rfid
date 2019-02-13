@@ -322,7 +322,7 @@ void generate_result_rider(int rider_id[], int nriders)
 					riders[rider_id[i]].name,\
 					riders[rider_id[i]].team\
 					);
-			sprintf(cmd, "echo '<tr><td>-</td><td>%03d</td><td>%s</td><td>%s</td><td>-</td><td>-</td><td>DNS</td><td>-</td></tr>' >> ./result.html", i+1,\
+			sprintf(cmd, "echo '<tr><td>-</td><td>%03d</td><td>%s</td><td>%s</td><td>-</td><td>-</td><td>DNS</td><td>-</td></tr>' >> ./result.html", rider_id[i],\
 					riders[rider_id[i]].name,\
 					riders[rider_id[i]].team\
 					);
