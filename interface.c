@@ -174,6 +174,38 @@ struct interface * cliFindClassById(uint nClsId)
 	return NULL;
 }
 
+int cliFindGroupById(uint nClsId)
+{
+	int rider_max = 0;
+	int i;
+
+	rider_max = sizeof(riders)/sizeof(HIBPRiderInfo);
+
+    for(i = 0; i < rider_max; i++)
+	{
+		if(riders[i].number == nClsId)
+			return riders[i].group;
+	}
+
+	return -1;
+}
+
+int cliFindIndexById(uint nClsId)
+{
+	int rider_max = 0;
+	int i;
+
+	rider_max = sizeof(riders)/sizeof(HIBPRiderInfo);
+
+    for(i = 0; i < rider_max; i++)
+	{
+		if(riders[i].number == nClsId)
+			return i;
+	}
+
+	return -1;
+}
+
 int makeTitle(char* pTitle, unsigned int group, struct interface *pCls, unsigned int order, unsigned int rider_num)
 {
     if(!group)
@@ -221,7 +253,7 @@ void init_group_rider(HIBPGroupRider group_riders[], HIBPRiderInfo riders[], int
 
 		if(group_riders[i].group == riders[j].group )
 		{
-			group_riders[i].riders[k] = j;
+			group_riders[i].riders[k] = riders[j].number;
 			k++;
 		}
 		else
@@ -229,7 +261,7 @@ void init_group_rider(HIBPGroupRider group_riders[], HIBPRiderInfo riders[], int
 			group_riders[i].nriders = k;
 			i++;
 			k=0;
-			group_riders[i].riders[k] = j;
+			group_riders[i].riders[k] = riders[j].number;
 			k++;
 			group_riders[i].group = riders[j].group;
 		}
@@ -274,6 +306,7 @@ void sort_groups(HIBPGroupRider group_riders[], int ngroups )
 void generate_result_rider(int rider_id[], int nriders)
 {
 	int i;
+    int index;
 	char cmd[256];
 	char title[128];
 	struct interface *pCls = NULL;
@@ -284,41 +317,50 @@ void generate_result_rider(int rider_id[], int nriders)
 		memset(title, 0, sizeof(title));
 		if(pCls != NULL)
 		{
-			makeTitle(title, riders[rider_id[i]].group, pCls, pCls->order, nriders);
-			if((pCls->pure_sec == 86399) && (pCls->pure_msec == 999))
-			{
-				printf("HIBP: %03d  %s  %s  %02d:%02d:%02d.%03d  DNF          -> %s\n", pCls->id, \
-					   riders[rider_id[i]].name, \
-					   riders[rider_id[i]].team, \
-					   (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
-					   title);
-				sprintf(cmd, "echo '<tr><td>%s</td><td>%03d</td><td>%s</td><td>%s</td><td>%02d:%02d:%02d.%03d</td><td>-</td><td>DNF</td><td>-</td></tr>' >> ./result.html", \
-						title, pCls->id,\
-						riders[rider_id[i]].name,\
-						riders[rider_id[i]].team,\
-						(pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec\
-						);
-			}
-			else
-			{
-				printf("HIBP: %03d  %s  %s  %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    +%02d:%02d:%02d.%03d ->  %s\n", pCls->id,\
-						riders[rider_id[i]].name, \
-						riders[rider_id[i]].team, \
-						(pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
-						(pCls->end_sec/60/60+8)%24, (pCls->end_sec/60)%60, pCls->end_sec%60, pCls->end_msec,\
-						(pCls->pure_sec/60/60)%24, (pCls->pure_sec/60)%60, (pCls->pure_sec%60), pCls->pure_msec,\
-						(pCls->gap_sec/60/60)%24, (pCls->gap_sec/60)%60, pCls->gap_sec%60, pCls->gap_msec,\
-						title);
-				sprintf(cmd, "echo '<tr><td>%s</td><td>%03d</td><td>%s</td><td>%s</td><td>%02d:%02d:%02d.%03d</td><td>%02d:%02d:%02d.%03d</td><td>%02d:%02d:%02d.%03d</td><td>+%02d:%02d:%02d.%03d</td></tr>' >> ./result.html",\
-						title, pCls->id,\
-						riders[rider_id[i]].name, \
-						riders[rider_id[i]].team, \
-						(pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
-						(pCls->end_sec/60/60+8)%24, (pCls->end_sec/60)%60, pCls->end_sec%60, pCls->end_msec,\
-						(pCls->pure_sec/60/60)%24, (pCls->pure_sec/60)%60, (pCls->pure_sec%60), pCls->pure_msec,\
-						(pCls->gap_sec/60/60)%24, (pCls->gap_sec/60)%60, pCls->gap_sec%60, pCls->gap_msec\
-						);
-			}
+            index = cliFindIndexById(rider_id[i]);
+            if(index < 0)
+            {
+                printf("%s, %d, rider_id: %03d find index err!\n", __FILE__, __LINE__, rider_id[i]);
+                continue;
+            }
+            else
+            {
+                makeTitle(title, riders[index].group, pCls, pCls->order, nriders);
+                if((pCls->pure_sec == 86399) && (pCls->pure_msec == 999))
+                {
+                    printf("HIBP: %03d  %s  %s  %02d:%02d:%02d.%03d  DNF          -> %s\n", pCls->id, \
+                            riders[index].name, \
+                            riders[index].team, \
+                            (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
+                            title);
+                    sprintf(cmd, "echo '<tr><td>%s</td><td>%03d</td><td>%s</td><td>%s</td><td>%02d:%02d:%02d.%03d</td><td>-</td><td>DNF</td><td>-</td></tr>' >> ./result.html", \
+                            title, pCls->id,\
+                            riders[index].name,\
+                            riders[index].team,\
+                            (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec\
+                           );
+                }
+                else
+                {
+                    printf("HIBP: %03d  %s  %s  %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    +%02d:%02d:%02d.%03d ->  %s\n", pCls->id,\
+                            riders[index].name, \
+                            riders[index].team, \
+                            (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
+                            (pCls->end_sec/60/60+8)%24, (pCls->end_sec/60)%60, pCls->end_sec%60, pCls->end_msec,\
+                            (pCls->pure_sec/60/60)%24, (pCls->pure_sec/60)%60, (pCls->pure_sec%60), pCls->pure_msec,\
+                            (pCls->gap_sec/60/60)%24, (pCls->gap_sec/60)%60, pCls->gap_sec%60, pCls->gap_msec,\
+                            title);
+                    sprintf(cmd, "echo '<tr><td>%s</td><td>%03d</td><td>%s</td><td>%s</td><td>%02d:%02d:%02d.%03d</td><td>%02d:%02d:%02d.%03d</td><td>%02d:%02d:%02d.%03d</td><td>+%02d:%02d:%02d.%03d</td></tr>' >> ./result.html",\
+                            title, pCls->id,\
+                            riders[index].name, \
+                            riders[index].team, \
+                            (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
+                            (pCls->end_sec/60/60+8)%24, (pCls->end_sec/60)%60, pCls->end_sec%60, pCls->end_msec,\
+                            (pCls->pure_sec/60/60)%24, (pCls->pure_sec/60)%60, (pCls->pure_sec%60), pCls->pure_msec,\
+                            (pCls->gap_sec/60/60)%24, (pCls->gap_sec/60)%60, pCls->gap_sec%60, pCls->gap_msec\
+                           );
+                }
+            }
 		}
 		system(cmd);
 	}
@@ -329,15 +371,24 @@ void generate_result_rider(int rider_id[], int nriders)
 		memset(cmd, 0, sizeof(cmd));
 		if(pCls == NULL)
 		{
-			printf("HIBP: %03d  %s  %s  DNS          -> -\n", rider_id[i],\
-					riders[rider_id[i]].name,\
-					riders[rider_id[i]].team\
-					);
-			sprintf(cmd, "echo '<tr><td>-</td><td>%03d</td><td>%s</td><td>%s</td><td>-</td><td>-</td><td>DNS</td><td>-</td></tr>' >> ./result.html", rider_id[i],\
-					riders[rider_id[i]].name,\
-					riders[rider_id[i]].team\
-					);
-			system(cmd);
+            index = cliFindIndexById(rider_id[i]);
+            if(index < 0)
+            {
+                printf("%s, %d, rider_id: %03d find index err!\n", __FILE__, __LINE__, rider_id[i]);
+                continue;
+            }
+            else
+            {
+                printf("HIBP: %03d  %s  %s  DNS          -> -\n", riders[index].number,\
+                        riders[index].name,\
+                        riders[index].team\
+                      );
+                sprintf(cmd, "echo '<tr><td>-</td><td>%03d</td><td>%s</td><td>%s</td><td>-</td><td>-</td><td>DNS</td><td>-</td></tr>' >> ./result.html", riders[index].number,\
+                        riders[index].name,\
+                        riders[index].team\
+                       );
+                system(cmd);
+            }
 		}
 
 	}
@@ -375,6 +426,7 @@ int main(void)
 	HIBPGroupRider group_riders[MAX];	  
 	int rider_num = 0;
 	int rider_max = 0;
+    int group = 0;
 	int i;
 
 	rider_max = sizeof(riders)/sizeof(HIBPRiderInfo);
@@ -389,13 +441,14 @@ int main(void)
 	list_for_each(pPos, &g_ife.list)
 	{
 		pCls = list_entry(pPos, struct interface, list);
-		if(pCls->id<0 || pCls->id >= rider_max)
-		{
+        group = cliFindGroupById(pCls->id);
+        if(group < 0)
+        {
 			printf("rider id:%d error!\n", pCls->id);
 			continue;
-		}
+        }
 
-		pCls->group = riders[pCls->id].group;
+		pCls->group = group;
 		rider_id[rider_num] = pCls->id;
 		rider_num++;
 	}
