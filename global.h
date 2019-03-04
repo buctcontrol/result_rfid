@@ -74,7 +74,9 @@ enum
     OPEN        = 5,
     ELITE       = 6,
     MASTER      = 7,
-    MAX         = 8
+    EBIKE       = 8,
+    TASTE       = 9,
+    MAX         = 10
 };
 
 HIBPGroup groupStr[] = {
@@ -85,7 +87,9 @@ HIBPGroup groupStr[] = {
     {"男子组"},
     {"大众组"},
     {"精英组"},
-    {"大师组"}
+    {"大师组"},
+    {"EBike"},
+    {"体验组"}
 };
 
 HIBPTitle titleStr[] = {
