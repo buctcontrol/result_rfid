@@ -307,7 +307,7 @@ void generate_result_rider(int rider_id[], int nriders)
 {
 	int i;
     int index;
-	char cmd[256];
+	char cmd[512];
 	char title[128];
 	struct interface *pCls = NULL;
 	for(i=0; i<nriders; i++)
@@ -350,12 +350,14 @@ void generate_result_rider(int rider_id[], int nriders)
                             (pCls->pure_sec/60/60)%24, (pCls->pure_sec/60)%60, (pCls->pure_sec%60), pCls->pure_msec,\
                             (pCls->gap_sec/60/60)%24, (pCls->gap_sec/60)%60, pCls->gap_sec%60, pCls->gap_msec,\
                             title);
-                    sprintf(cmd, "echo '<tr><td>%s</td><td>%03d</td><td>%s</td><td>%s</td><td>%02d:%02d:%02d.%03d</td><td>%02d:%02d:%02d.%03d</td><td>%02d:%02d:%02d.%03d</td><td>+%02d:%02d:%02d.%03d</td></tr>' >> ./result.html",\
+                    sprintf(cmd, "echo '<tr><td>%s</td><td>%03d</td><td>%s</td><td>%s</td><td>%02d:%02d:%02d.%03d</td><td>%02d:%02d:%02d.%03d</td><td><a rel='certy' href='../certs/sy0324/%d-%s.jpg'>%02d:%02d:%02d.%03d</a> </td><td>+%02d:%02d:%02d.%03d</td></tr>' >> ./result.html",\
                             title, pCls->id,\
                             riders[index].name, \
                             riders[index].team, \
                             (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
                             (pCls->end_sec/60/60+8)%24, (pCls->end_sec/60)%60, pCls->end_sec%60, pCls->end_msec,\
+                            pCls->order, \
+                            riders[index].name, \
                             (pCls->pure_sec/60/60)%24, (pCls->pure_sec/60)%60, (pCls->pure_sec%60), pCls->pure_msec,\
                             (pCls->gap_sec/60/60)%24, (pCls->gap_sec/60)%60, pCls->gap_sec%60, pCls->gap_msec\
                            );
