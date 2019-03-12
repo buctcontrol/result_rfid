@@ -306,6 +306,7 @@ void sort_groups(HIBPGroupRider group_riders[], int ngroups )
 void generate_result_rider(int rider_id[], int nriders)
 {
 	int i;
+    int j;
     int index;
 	char cmd[256];
 	char title[128];
@@ -344,6 +345,13 @@ void generate_result_rider(int rider_id[], int nriders)
                             (pCls->pure_sec/60/60)%24, (pCls->pure_sec/60)%60, (pCls->pure_sec%60), pCls->pure_msec,\
                             (pCls->gap_sec/60/60)%24, (pCls->gap_sec/60)%60, pCls->gap_sec%60, pCls->gap_msec,\
                             title);
+                    for(j = 0; j < sizeof(riders[index].name); j++)
+                    {
+                        if(riders[index].name[j] == ' ')
+                        {
+                            riders[index].name[j] = '\0';
+                        }
+                    }
                     sprintf(cmd, "/root/.local/share/virtualenvs/enduro-racer-dev-wanderxjtu-TMt3I-eF/bin/python3 /home/admin/enduro-racer-dev-wanderxjtu/enduro_racer/certy/certgen.py '%s' %d '%s' '%02d:%02d:%02d.%03d'", \
                             riders[index].name,\
                             pCls->order, \
