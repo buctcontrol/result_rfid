@@ -101,7 +101,7 @@ HIBPTitle titleStr[] = {
 typedef struct
 {
     unsigned int    number;
-    char            name[32];
+    char            name[64];
     char            team[128];
     unsigned int    group;
 }HIBPRiderInfo;
