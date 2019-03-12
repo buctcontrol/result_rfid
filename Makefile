@@ -14,7 +14,7 @@ CFLAGS+= -g -Wall
 # CFLAGS+= -Wshadow -Wpointer-arith -Wcast-qual -Wsign-compare
 LDFLAGS+= -lpthread
 
-all:		interface 
+all:		interface certy 
 	$(STRIP) interface
 #	cp interface /tftpboot/
 #	cp interface /target/
@@ -22,14 +22,14 @@ all:		interface
 interface:		interface.o 
 	$(CC) $(LDFLAGS) interface.o  $(LDLIBS) -o interface
 
+certy:		certy.o 
+	$(CC) $(LDFLAGS) certy.o  $(LDLIBS) -o certy
+
 interface.o:	interface.c
 	$(CC) $(CFLAGS) -c interface.c
 
-
-install:	all
-	install -o root -g bin -m 0555 interface $(BINDIR)
-#	install -o root -g wheel -m 0755 -d $(MANDIR)/man8
-#	install -o root -g bin -m 0444 interface.8 $(MANDIR)/man8
+certy.o:	certy.c
+	$(CC) $(CFLAGS) -c certy.c
 
 clean:
-	rm -f interface *.o
+	rm -f interface certy *.o
