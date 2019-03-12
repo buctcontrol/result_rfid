@@ -307,6 +307,7 @@ void generate_result_rider(int rider_id[], int nriders)
 {
 	int i;
     int index;
+    int count = 0;
 	char cmd[512];
 	char title[128];
 	struct interface *pCls = NULL;
@@ -328,12 +329,12 @@ void generate_result_rider(int rider_id[], int nriders)
                 makeTitle(title, riders[index].group, pCls, pCls->order, nriders);
                 if((pCls->pure_sec == 86399) && (pCls->pure_msec == 999))
                 {
-                    printf("HIBP: %03d  %s  %s  %02d:%02d:%02d.%03d  DNF          -> %s\n", pCls->id, \
+                    printf("HIBP: %03d  %s  %s  %02d:%02d:%02d.%03d  DNF          -> %s     0\n", pCls->id, \
                             riders[index].name, \
                             riders[index].team, \
                             (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
                             title);
-                    sprintf(cmd, "echo '<tr><td>%s</td><td>%03d</td><td>%s</td><td>%s</td><td>%02d:%02d:%02d.%03d</td><td>-</td><td>DNF</td><td>-</td></tr>' >> ./result.html", \
+                    sprintf(cmd, "echo '<tr><td>%s</td><td>%03d</td><td>%s</td><td>%s</td><td>%02d:%02d:%02d.%03d</td><td>-</td><td>DNF</td><td>-</td>i<td>0</td></tr>' >> ./result.html", \
                             title, pCls->id,\
                             riders[index].name,\
                             riders[index].team,\
@@ -342,15 +343,137 @@ void generate_result_rider(int rider_id[], int nriders)
                 }
                 else
                 {
-                    printf("HIBP: %03d  %s  %s  %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    +%02d:%02d:%02d.%03d ->  %s\n", pCls->id,\
+                    if((riders[index].group == ELITE) || (riders[index].group == WOMAN))
+                    {
+                        switch(pCls->order)
+                        {
+                            case 1:
+                                count = 200;
+                                break;
+
+                            case 2:
+                                count = 160;
+                                break;
+
+                            case 3:
+                                count = 140;
+                                break;
+
+                            case 4:
+                                count = 120;
+                                break;
+
+                            case 5:
+                                count = 100;
+                                break;
+
+                            case 6:
+                            case 7:
+                            case 8:
+                            case 9:
+                            case 10:
+                            case 11:
+                                count = 100 - 5 * (pCls->order - 5);
+                                break;
+
+                            case 12:
+                            case 13:
+                            case 14:
+                            case 15:
+                            case 16:
+                                count = 70 - 2 * (pCls->order - 11);
+                                break;
+
+                            case 17:
+                            case 18:
+                            case 19:
+                            case 20:
+                                count = 60 - 10 * (pCls->order - 16);
+                                break;
+
+                            default:
+                                count = 10;
+                                break;
+
+                        }
+
+                    }
+                    else
+                    {
+                        switch(pCls->order)
+                        {
+                            case 1:
+                                count = 60;
+                                break;
+
+                            case 2:
+                                count = 50;
+                                break;
+
+                            case 3:
+                                count = 45;
+                                break;
+
+                            case 4:
+                                count = 40;
+                                break;
+
+                            case 5:
+                                count = 35;
+                                break;
+
+                            case 6:
+                                count = 30;
+                                break;
+
+                            case 7:
+                            case 8:
+                            case 9:
+                            case 10:
+                                count = 30 - (pCls->order - 6);
+                                break;
+
+                            case 11:
+                            case 12:
+                            case 13:
+                            case 14:
+                            case 15:
+                            case 16:
+                            case 17:
+                            case 18:
+                            case 19:
+                            case 20:
+                                count = 21 - (pCls->order - 11);
+                                break;
+
+                            case 21:
+                            case 22:
+                            case 23:
+                            case 24:
+                            case 25:
+                            case 26:
+                            case 27:
+                            case 28:
+                            case 29:
+                            case 30:
+                                count = 10;
+                                break;
+
+                            default:
+                                count = 5;
+                                break;
+                        }
+                    }
+                    printf("HIBP: %03d  %s  %s  %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    +%02d:%02d:%02d.%03d ->  %s    %d\n", pCls->id,\
                             riders[index].name, \
                             riders[index].team, \
                             (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
                             (pCls->end_sec/60/60+8)%24, (pCls->end_sec/60)%60, pCls->end_sec%60, pCls->end_msec,\
                             (pCls->pure_sec/60/60)%24, (pCls->pure_sec/60)%60, (pCls->pure_sec%60), pCls->pure_msec,\
                             (pCls->gap_sec/60/60)%24, (pCls->gap_sec/60)%60, pCls->gap_sec%60, pCls->gap_msec,\
-                            title);
-                    sprintf(cmd, "echo '<tr><td>%s</td><td>%03d</td><td>%s</td><td>%s</td><td>%02d:%02d:%02d.%03d</td><td>%02d:%02d:%02d.%03d</td><td><a rel='certy' href='../certs/sy0324/%d-%s.jpg'>%02d:%02d:%02d.%03d</a> </td><td>+%02d:%02d:%02d.%03d</td></tr>' >> ./result.html",\
+                            title, \
+                            count);
+                    sprintf(cmd, "echo '<tr><td>%s</td><td>%03d</td><td>%s</td><td>%s</td><td>%02d:%02d:%02d.%03d</td><td>%02d:%02d:%02d.%03d</td><td><a rel='certy' href='../certs/sy0324/%d-%s.jpg'>%02d:%02d:%02d.%03d</a> </td><td>+%02d:%02d:%02d.%03d</td><td>%d</td></tr>' >> ./result.html",\
                             title, pCls->id,\
                             riders[index].name, \
                             riders[index].team, \
@@ -359,8 +482,8 @@ void generate_result_rider(int rider_id[], int nriders)
                             pCls->order, \
                             riders[index].name, \
                             (pCls->pure_sec/60/60)%24, (pCls->pure_sec/60)%60, (pCls->pure_sec%60), pCls->pure_msec,\
-                            (pCls->gap_sec/60/60)%24, (pCls->gap_sec/60)%60, pCls->gap_sec%60, pCls->gap_msec\
-                           );
+                            (pCls->gap_sec/60/60)%24, (pCls->gap_sec/60)%60, pCls->gap_sec%60, pCls->gap_msec,\
+                            count);
                 }
             }
 		}
@@ -381,11 +504,11 @@ void generate_result_rider(int rider_id[], int nriders)
             }
             else
             {
-                printf("HIBP: %03d  %s  %s  DNS          -> -\n", riders[index].number,\
+                printf("HIBP: %03d  %s  %s  DNS          -> -   0\n", riders[index].number,\
                         riders[index].name,\
                         riders[index].team\
                       );
-                sprintf(cmd, "echo '<tr><td>-</td><td>%03d</td><td>%s</td><td>%s</td><td>-</td><td>-</td><td>DNS</td><td>-</td></tr>' >> ./result.html", riders[index].number,\
+                sprintf(cmd, "echo '<tr><td>-</td><td>%03d</td><td>%s</td><td>%s</td><td>-</td><td>-</td><td>DNS</td><td>-</td><td>0</td></tr>' >> ./result.html", riders[index].number,\
                         riders[index].name,\
                         riders[index].team\
                        );
@@ -411,7 +534,7 @@ void generate_result(HIBPGroupRider group_riders[], int ngroups )
 		system(cmd);
 		sprintf(cmd, "echo '</table> <br/>' >> ./result.html");
 		system(cmd);
-		sprintf(cmd, "echo '<table id=\"t01\"> <tr><th style=\"width:7%\">排名</th><th style=\"width:5%\">号码</th><th style=\"width:12%\">姓名</th><th style=\"width:20%\">车队</th><th style=\"width:14%\">发车时间</th><th style=\"width:14%\">到达时间</th><th style=\"width:14%\">成绩</th><th style=\"width:14%\">时间差</th></tr>' >> result.html");
+		sprintf(cmd, "echo '<table id=\"t01\"> <tr><th style=\"width:7%\">排名</th><th style=\"width:5%\">号码</th><th style=\"width:12%\">姓名</th><th style=\"width:20%\">车队</th><th style=\"width:14%\">发车时间</th><th style=\"width:14%\">到达时间</th><th style=\"width:14%\">成绩</th><th style=\"width:14%\">时间差</th><th style=\"width:14%\">积分</th></tr>' >> result.html");
 		system(cmd);
 		generate_result_rider(group_riders[i].riders, group_riders[i].nriders);
 		sprintf(cmd, "echo '</table> <br/>' >> ./result.html");
