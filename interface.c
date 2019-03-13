@@ -9,7 +9,7 @@
 #include "interface.h"
 #include "riders.h"
 
-//#define WITH_POINTS     1
+#define WITH_POINTS     1
 #define WITH_RFID       1
 
 struct interface g_max[MAX];
@@ -550,7 +550,7 @@ void generate_result(HIBPGroupRider group_riders[], int ngroups )
 		sprintf(cmd, "echo '</table> <br/>' >> ./result.html");
 		system(cmd);
 #ifdef  WITH_POINTS
-		sprintf(cmd, "echo '<table id=\"t01\"> <tr><th style=\"width:7%\">排名</th><th style=\"width:5%\">号码</th><th style=\"width:12%\">姓名</th><th style=\"width:20%\">车队</th><th style=\"width:14%\">发车时间</th><th style=\"width:14%\">到达时间</th><th style=\"width:14%\">成绩</th><th style=\"width:14%\">时间差</th><th style=\"width:14%\">积分</th></tr>' >> result.html");
+		sprintf(cmd, "echo '<table id=\"t01\"> <tr><th style=\"width:7%\">排名</th><th style=\"width:5%\">号码</th><th style=\"width:12%\">姓名</th><th style=\"width:20%\">车队</th><th style=\"width:13%\">发车时间</th><th style=\"width:13%\">到达时间</th><th style=\"width:13%\">成绩</th><th style=\"width:13%\">时间差</th><th style=\"width:4%\">积分</th></tr>' >> result.html");
 #else
 		sprintf(cmd, "echo '<table id=\"t01\"> <tr><th style=\"width:7%\">排名</th><th style=\"width:5%\">号码</th><th style=\"width:12%\">姓名</th><th style=\"width:20%\">车队</th><th style=\"width:14%\">发车时间</th><th style=\"width:14%\">到达时间</th><th style=\"width:14%\">成绩</th><th style=\"width:14%\">时间差</th></tr>' >> result.html");
 #endif
