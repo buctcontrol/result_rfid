@@ -307,15 +307,18 @@ void sort_groups(HIBPGroupRider group_riders[], int ngroups )
 void generate_result_rider(int rider_id[], int nriders)
 {
 	int i;
+    int j;
     int index;
     int count = 0;
 	char cmd[512];
+    char cmd_csv[512];
 	char title[128];
 	struct interface *pCls = NULL;
 	for(i=0; i<nriders; i++)
 	{
 		pCls = cliFindClassById(rider_id[i]);
 		memset(cmd, 0, sizeof(cmd));
+		memset(cmd_csv, 0, sizeof(cmd_csv));
 		memset(title, 0, sizeof(title));
 		if(pCls != NULL)
 		{
@@ -339,8 +342,13 @@ void generate_result_rider(int rider_id[], int nriders)
                             title, pCls->id,\
                             riders[index].name,\
                             riders[index].team,\
-                            (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec\
-                           );
+                            (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec);
+                    sprintf(cmd_csv,"echo '%s,%s,%03d,%s,%s,%02d:%02d:%02d.%03d,-,-,DNF,-' >> ./result.csv",\
+                            groupStr[riders[index].group].str, \
+                            title, pCls->id, \
+                            riders[index].name, \
+                            riders[index].team, \
+                            (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec);
                 }
                 else
                 {
@@ -499,16 +507,36 @@ void generate_result_rider(int rider_id[], int nriders)
                             (pCls->gap_sec/60/60)%24, (pCls->gap_sec/60)%60, pCls->gap_sec%60, pCls->gap_msec\
                            );
 #endif
+                    for(j = 0; j < sizeof(riders[index].name); j++)
+                    {
+                        if(riders[index].name[j] == ' ')
+                        {
+                            riders[index].name[j] = '\0';
+                        }
+                    }
+                    sprintf(cmd_csv,"echo '%s,%s,%03d,%s,%s,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%d-%s.jpg,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d' >> ./result.csv",\
+                            groupStr[riders[index].group].str, \
+                            title, pCls->id,\
+                            riders[index].name, \
+                            riders[index].team, \
+                            (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
+                            (pCls->end_sec/60/60+8)%24, (pCls->end_sec/60)%60, pCls->end_sec%60, pCls->end_msec,\
+                            pCls->order, \
+                            riders[index].name, \
+                            (pCls->pure_sec/60/60)%24, (pCls->pure_sec/60)%60, (pCls->pure_sec%60), pCls->pure_msec,\
+                            (pCls->gap_sec/60/60)%24, (pCls->gap_sec/60)%60, pCls->gap_sec%60, pCls->gap_msec);
                 }
             }
 		}
 		system(cmd);
+		system(cmd_csv);
 	}
 
 	for(i=0; i<nriders; i++)
 	{
 		pCls = cliFindClassById(rider_id[i]);
 		memset(cmd, 0, sizeof(cmd));
+		memset(cmd_csv, 0, sizeof(cmd_csv));
 		if(pCls == NULL)
 		{
             index = cliFindIndexById(rider_id[i]);
@@ -527,7 +555,13 @@ void generate_result_rider(int rider_id[], int nriders)
                         riders[index].name,\
                         riders[index].team\
                        );
+                sprintf(cmd_csv,"echo '%s,-,%03d,%s,%s,-,-,-,DNS,-,' >> ./result.csv",\
+                        groupStr[riders[index].group].str, \
+                        riders[index].number,\
+                        riders[index].name, \
+                        riders[index].team);
                 system(cmd);
+                system(cmd_csv);
             }
 		}
 
@@ -539,6 +573,7 @@ void generate_result(HIBPGroupRider group_riders[], int ngroups )
 	int i;
 	char cmd[512];
 	system("rm -rf ./result.html");
+    system("rm -rf ./result.csv");
 	for(i = 0; i< ngroups; i++)
 	{
 		if(group_riders[i].nriders == 0 )
