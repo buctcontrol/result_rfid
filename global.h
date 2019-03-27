@@ -21,6 +21,7 @@
 #define    APP_FAIL                        (-1)
 
 #define _MAX_RIDERS		512
+#define  LENGTH         1350
 
 typedef unsigned char uchar;
 typedef unsigned int uint;

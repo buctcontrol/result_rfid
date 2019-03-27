@@ -16,6 +16,7 @@ struct interface {
     unsigned int gap_msec;  /* gap millisecond */
     unsigned int order;     /* order */
     unsigned int end_filled;/* we have filled the end time */
+    float speed;            /* speed of km/h */
 };
 
 int get_dev_fields(char *bp, struct interface *ife, int type);

@@ -79,6 +79,7 @@ static int if_readlist_proc(char *target, int type)
     struct interface *pCur = &g_ife;
     int err;
     int count = 0;
+    float float_time;
 
     if(type == TYPE_START)
     {
@@ -142,6 +143,8 @@ static int if_readlist_proc(char *target, int type)
                         pCur->pure_sec = pCur->end_sec - pCur->sec;
                         pCur->pure_msec = pCur->end_msec - pCur->msec;
                     }
+                    float_time = pCur->pure_sec + pCur->pure_msec/1000;
+                    pCur->speed = (LENGTH * 3.6) / float_time;
                 }
                 break;
 
@@ -473,13 +476,14 @@ void generate_result_rider(int rider_id[], int nriders)
                                 break;
                         }
                     }
-                    printf("HIBP: %03d  %s  %s  %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    +%02d:%02d:%02d.%03d ->  %s    %d\n", pCls->id,\
+                    printf("HIBP: %03d  %s  %s  %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    +%02d:%02d:%02d.%03d  %.02fkm/h ->  %s    %d\n", pCls->id,\
                             riders[index].name, \
                             riders[index].team, \
                             (pCls->sec/60/60+8)%24, (pCls->sec/60)%60, pCls->sec%60, pCls->msec,\
                             (pCls->end_sec/60/60+8)%24, (pCls->end_sec/60)%60, pCls->end_sec%60, pCls->end_msec,\
                             (pCls->pure_sec/60/60)%24, (pCls->pure_sec/60)%60, (pCls->pure_sec%60), pCls->pure_msec,\
                             (pCls->gap_sec/60/60)%24, (pCls->gap_sec/60)%60, pCls->gap_sec%60, pCls->gap_msec,\
+                            pCls->speed, \
                             title, \
                             count);
 #ifdef  WITH_POINTS
