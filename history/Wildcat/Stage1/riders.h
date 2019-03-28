@@ -27,7 +27,7 @@ HIBPRiderInfo riders[] = {
     {5,     "俞斌                     ", "鬼魅仔车队             ", OPEN},
     {6,     "金鑫越                   ", "上虞梦之队             ", OPEN},
     {7,     "孙祺龙                   ", "假日单车山地队         ", OPEN},
-    {8,     "Devon Patrick Du Plessis ", "HIBP                   ", OPEN},
+    {8,     "Devon                    ", "HIBP                   ", OPEN},
     {9,     "宗朝贤                   ", "soco极限单车           ", OPEN},
     {10,    "戴一唯                   ", "soco极限单车           ", OPEN},
     {11,    "黄家琦                   ", "阿里天驱               ", OPEN},
