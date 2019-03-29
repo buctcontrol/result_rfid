@@ -40,4 +40,5 @@ HIBPRiderInfo riders[] = {
     {18,    "喻杰                     ", "HangZhouGiant          ", OPEN},
     {19,    "邓浩翔                   ", "假日单车山地队         ", OPEN},
     {20,    "胡振宇                   ", "假日单车山地队         ", OPEN},
+    {21,    "文潇                     ", "个人                   ", OPEN},
 };
