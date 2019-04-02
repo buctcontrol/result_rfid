@@ -99,19 +99,5 @@ HIBPTitle titleStr[] = {
     {"季军"}
 };
 
-typedef struct
-{
-    unsigned int    number;
-    char            name[64];
-    char            team[128];
-    unsigned int    group;
-}HIBPRiderInfo;
-
-typedef struct
-{
-	int group;
-	int riders[_MAX_RIDERS];
-	int nriders;
-}HIBPGroupRider;
 #endif
 

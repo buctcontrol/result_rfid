@@ -1,0 +1,3 @@
+void generate_report()
+{
+}

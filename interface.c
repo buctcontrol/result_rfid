@@ -602,91 +602,13 @@ void generate_result(HIBPGroupRider group_riders[], int ngroups )
 
 int main(void)
 {
-	struct interface *pCls = NULL;
-	struct list_head *pPos = NULL;
-	struct interface *pCur = &g_ife;
-	unsigned int rider_id[512];	    /* rider id */
-	HIBPGroupRider group_riders[MAX];	  
-	int rider_num = 0;
-	int rider_max = 0;
-    int group = 0;
-	int i;
+	read_start();
+	read_end();
 
-	rider_max = sizeof(riders)/sizeof(HIBPRiderInfo);
-	memset(&g_ife, 0, sizeof(g_ife));
-	memset(&rider_id, 0 ,sizeof(rider_id));
-	memset(&group_riders, 0 ,sizeof(group_riders));
-	init_group_rider(group_riders, riders, MAX, rider_max);
+	calc_result();
+	sort_result();
 
-	INIT_LIST_HEAD(&g_ife.list);
-	if_readlist_proc("HIBP", TYPE_START);
-	if_readlist_proc("HIBP", TYPE_END);
-	list_for_each(pPos, &g_ife.list)
-	{
-		pCls = list_entry(pPos, struct interface, list);
-        group = cliFindGroupById(pCls->id);
-        if(group < 0)
-        {
-			printf("rider id:%d error!\n", pCls->id);
-			continue;
-        }
-
-		pCls->group = group;
-		rider_id[rider_num] = pCls->id;
-		rider_num++;
-	}
-
-
-	printf("We have %d riders, register %d riders!\n", rider_num, rider_max);
-	for(i = 0; i< rider_num; i++)
-	{
-		pCur = cliFindClassById(rider_id[i]);
-		pCur->order = 1;
-		list_for_each(pPos, &g_ife.list)
-		{
-			pCls = list_entry(pPos, struct interface, list);
-			if((pCls->group == pCur->group) && ((pCur->pure_sec > pCls->pure_sec) || ((pCur->pure_sec == pCls->pure_sec) && (pCur->pure_msec > pCls->pure_msec))))
-			{
-				pCur->order++;
-			}
-		}
-	}
-
-
-	for(i = 0; i< rider_num; i++)
-	{
-		pCur = cliFindClassById(rider_id[i]);
-		if(pCur->order == 1)
-		{
-			memcpy(&g_max[pCur->group], pCur, sizeof(struct interface));
-			printf("HIBP: %03d  %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d    %02d:%02d:%02d.%03d\n", pCur->id,\
-					(pCur->sec/60/60+8)%24, (pCur->sec/60)%60, pCur->sec%60, pCur->msec,\
-					(pCur->end_sec/60/60+8)%24, (pCur->end_sec/60)%60, pCur->end_sec%60, pCur->end_msec,\
-					(pCur->pure_sec/60/60)%24,\
-					(pCur->pure_sec/60)%60,\
-					(pCur->pure_sec%60),\
-					pCur->pure_msec);
-		}
-	}
-
-
-	for(i = 0; i< rider_num; i++)
-	{
-		pCur = cliFindClassById(rider_id[i]);
-		if(pCur->pure_msec < g_max[pCur->group].pure_msec)
-		{
-			pCur->gap_sec = (pCur->pure_sec - 1) - g_max[pCur->group].pure_sec;
-			pCur->gap_msec = 1000 + pCur->pure_msec - g_max[pCur->group].pure_msec;
-		}
-		else
-		{
-			pCur->gap_sec = pCur->pure_sec - g_max[pCur->group].pure_sec;
-			pCur->gap_msec = pCur->pure_msec - g_max[pCur->group].pure_msec;
-		}
-	}
-
-	sort_groups(group_riders, MAX);
-	generate_result(group_riders, MAX);
+	generate_report(mode, param);
 
 	return 0;
 }
