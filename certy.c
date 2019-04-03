@@ -352,7 +352,7 @@ void generate_result_rider(int rider_id[], int nriders)
                             riders[index].name[j] = '\0';
                         }
                     }
-                    sprintf(cmd, "/home/admin/enduro-racer/certy.sh '%s' %d '%s' '%02d:%02d:%02d.%03d'", \
+                    sprintf(cmd, "/home/admin/enduro-racer/certy.sh cat2019s1 '%s' %d '%s' '%02d:%02d:%02d.%03d'", \
                             riders[index].name,\
                             pCls->order, \
                             groupStr[riders[index].group].str, \
