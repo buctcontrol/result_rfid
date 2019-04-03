@@ -105,8 +105,8 @@ static void read_all_riders()
 
 	memset(&groups, 0, sizeof(groups));
 
-	file_open("rider_info.csv", "r");
-	while( file_gets(buf) != NULL)
+	file_open(_PATH_RIDERS, "r");
+	while( file_gets(buf, 127) != NULL)
 	{
 		sscanf(buf, "%d,%s,%s,%d", &num, name, team, &group);
 		riders[i].number = num;

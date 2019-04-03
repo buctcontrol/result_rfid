@@ -1,9 +1,9 @@
 
 #include "points_rule.h"
+#include "racing_info.h"
+#include "riders.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-static void set_points(HIBPRiderInfo* rider, int position);
 
 void generate_report(const char* mode)
 {
@@ -33,7 +33,7 @@ static void generate_report_stage()
 	char fname[256];
 	for(i=0; i<group_count; i++){
 		for(int j=0; j<groups[i].nriders; j++){
-			set_points(rider, j);
+			groups[i].riders[j]->results[0].points = get_points(groups[i].group, j);
 		}
 	}
 
@@ -97,10 +97,15 @@ static int file_open(const char* filename, const char* mode){
 	return 1;
 }
 		 
-statick void file_puts(const char* buf)
+static void file_puts(const char* buf)
 {
 	printf("%s", buf):
 	fputs(buf, fp);
+}
+
+static char* file_gets(char* buf, int size)
+{
+	return fgets(buf, size, fp);
 }
 
 statick void file_close(const char* buf)
