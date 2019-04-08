@@ -88,6 +88,7 @@ static void copy_rider(HIBPRiderInfo* src, HIBPRiderInfo* dst)
 	memcpy(src->results, dst->results, sizeof(dst->results));
 	strcpy(src->name, dst->name);
 	strcpy(src->team, dst->team);
+	strcpy(src->result_time, dst->result_time);
 }
 
 void swap_rider(HIBPRiderInfo* src, HIBPRiderInfo* dst)

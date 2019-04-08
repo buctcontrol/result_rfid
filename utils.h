@@ -6,6 +6,7 @@
 ///csv file operations
 extern int find_column(const char* buf, const char* key);
 extern int get_column_i(const char* buf, int idx); 
+extern int get_column_f(const char* buf, int idx); 
 extern char* get_column_str(const char* buf, int idx, char val[]);
 
 

@@ -44,6 +44,34 @@ static void sort_by_points(HIBPGroupRider* groups, int groups_count)
 
 static void read_report(HIBPGroupRider* groups, const char* fname) 
 {
+	char buf[256], tmp[64];
+	int i=0;
+	int gid_tmp=-1;
+	file_open(fname, "r");
+	file_gets(buf, 256);//skip head line
+	while( file_gets(buf, 256) != NULL)
+	{
+		int gid = get_column_i(buf, 0);
+		if(gid != gid_tmp){
+			if(gid_tmp != -1)
+				groups[gid_tmp].nriders = i;
+			i=0;
+			gid_tmp = gid;
+		}
+		groups[gid].group=gid;
+		groups[gid].riders[i].number 			= get_column_i  (buf, 3);
+		strcpy(groups[gid].riders[i].name   		, get_column_str(buf, 4, tmp));
+		strcpy(groups[gid].riders[i].team   		, get_column_str(buf, 5, tmp));
+		strcpy(groups[gid].riders[i].result_time 	, get_column_str(buf, 8, tmp));
+		groups[gid].riders[i].results[0].speed		= get_column_f  (buf, 10);
+		groups[gid].riders[i].results[0].points		= get_column_i  (buf, 11);
+		
+		i++;
+	}
+
+	groups[gid_tmp].nriders = i;
+	file_close();
+
 }
 
 static void calc_total_result(StageReport* stages, int nstages, int groups_count)
@@ -94,10 +122,10 @@ static void save_report_stage(HIBPGroupRider* groups, int groups_count, int nsta
 	for(i=0; i<groups_count; i++){
 		for(j=0; j<groups[i].nriders; j++){
 			HIBPRiderInfo* r= groups[i].riders+j;
-			sprintf(buf, "%s,%d,%s,%s", groupStr[r->group].str, r->number, r->name, r->team);
+			sprintf(buf, "%s,%03d,%s,%s", groupStr[groups[i].group].str, r->number, r->name, r->team);
 			for(k=0; k<nstages; k++){
 				PINTERFACE p = r->results+k+1;
-				sprintf(buf,"%s,%02d:%02d:%02d.%03d,%d", buf,
+				sprintf(buf,"%s,%02d:%02d:%02d.%03d,%d\n", buf,
 					(p->pure_sec/60/60)%24, (p->pure_sec/60)%60, (p->pure_sec%60), p->pure_msec,
 					p->points);
 			}
@@ -112,7 +140,7 @@ static void save_report_stage(HIBPGroupRider* groups, int groups_count, int nsta
 
 static char* get_headline(char head[])
 {
-	sprintf(head, "Group,Rank,No,Name,Team,SartTime,EndTime,ResultTime,GapTime");
+	sprintf(head, "Group,GroupName,Rank,No,Name,Team,SartTime,EndTime,ResultTime,GapTime,AvgSpeed,Points\n");
 	return head;
 }
 
@@ -133,14 +161,17 @@ static void save_report(HIBPGroupRider* groups, int groups_count, const char* fi
 	for(i=0; i<groups_count; i++){
 		for(j=0; j<groups[i].nriders; j++){
 			HIBPRiderInfo* r= groups[i].riders+j;
-			sprintf(buf, "%s,%d,%03d,%s,%s", groupStr[r->group].str, j+1, r->number, r->name, r->team);
+			sprintf(buf, "%d,%s,%d,%03d,%s,%s", 
+				groups[i].group, groupStr[groups[i].group].str, j+1, r->number, r->name, r->team);
+
 				PINTERFACE p = r->results;
-				sprintf(buf,"%s,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%d", buf,
-					(p->sec/60/60)%24, (p->sec/60)%60, (p->sec%60), p->msec,
+				sprintf(buf,"%s,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%.3f,%d\n",
+					buf,
+					(p->sec/60/60+8)%24, (p->sec/60)%60, (p->sec%60), p->msec,
+					(p->end_sec/60/60+8)%24, (p->end_sec/60)%60, (p->end_sec%60), p->end_msec,
 					(p->pure_sec/60/60)%24, (p->pure_sec/60)%60, (p->pure_sec%60), p->pure_msec,
-					(p->end_sec/60/60)%24, (p->end_sec/60)%60, (p->end_sec%60), p->end_msec,
 					(p->gap_sec/60/60)%24, (p->gap_sec/60)%60, (p->gap_sec%60), p->gap_msec,
-					p->points);
+					p->speed, p->points);
 
 			file_puts(buf);
 			}
@@ -185,15 +216,20 @@ static void generate_report_stage()
 #include <stdio.h>
 struct interface g_ife;
 
+#include "results.h"
+
 int main()
 {
 	memset(&g_ife, 0, sizeof(g_ife));
 	INIT_LIST_HEAD(&g_ife.list);
-	//read_start();
-	//read_finish();
-	//calc_result();
-	save_report(get_groups(), get_groups_count(), "results.csv" );
-	
+	read_start();
+	read_finish();
+	calc_result();
+	save_report(get_groups(), get_groups_count(), "result_stage_1.csv" );
+
+	HIBPGroupRider groups[_MAX_GROUPS];
+	read_report(groups, "result_stage_1.csv");
+
 	return 0;
 }
 

@@ -67,6 +67,18 @@ int get_column_i(const char* buf, int idx)
 }
 
 
+int get_column_f(const char* buf, int idx) 
+{
+	int count=0;
+	int val=-1;
+	char **fields = strsplit(buf, ",", &count);
+	if(idx < count)
+		val = atof(fields[idx]);	
+
+	free(fields);
+	return val;
+}
+
 char* get_column_str(const char* buf, int idx, char val[]) 
 {
 	int count=0;

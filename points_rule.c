@@ -11,7 +11,12 @@ int get_points(int position, int group)
 	char buf[128];
 
 	file_gets(buf, 128);
-	col =  find_column(buf, groupStr[group].str);
+	//col =  find_column(buf, groupStr[group].str);
+	if(group == WOMAN)
+		col =  find_column(buf,"Woman");
+	else
+		col =  find_column(buf, "Man");
+		
 	file_open("points_rule.csv", "r");
 	while( file_gets(buf, 128) != NULL)
 	{
