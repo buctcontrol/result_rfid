@@ -1,6 +1,10 @@
+///interface.h
+
+#ifndef INTERFACE_H
+#define INTERFACE_H
+
 #include "list.h"
-#define     TYPE_START  1
-#define     TYPE_END    2
+
 typedef struct interface {
 	struct list_head list;
     unsigned int id;	    /* rider id */
@@ -22,6 +26,4 @@ typedef struct interface {
 
 extern struct interface g_ife;
 
-int get_dev_fields(char *bp, struct interface *ife, int type);
-struct interface * cliFindClassById(uint nClsId);
-
+#endif /*INTERFACE_H*/

@@ -16,28 +16,30 @@
  * =====================================================================================
  */
 
-#include "global.h"
+#include "riders.h"
+#include "utils.h"
+#include <string.h>
 
-#define _PATH_RIDERS "./riders_info.csv"
-#define _MAX_RIDERS=1024;
 
 
 HIBPGroupRider groups[_MAX_GROUPS];
-static int group_count=0;
+static int groups_count=0;
+
+static void read_all_riders();
 
 HIBPRiderInfo* get_rider_info(int No)
 {
-	if(group_count == 0 )
+	if(groups_count == 0 )
 		read_all_riders();
 
-	for(int i=0; i<group_count; i++){
-		for(int j=0; j<group[i].nriders; j++){
-			if(group[i].riders[j].number == No)
-				return group[i].riders+j;
+	for(int i=0; i<groups_count; i++){
+		for(int j=0; j<groups[i].nriders; j++){
+			if(groups[i].riders[j].number == No)
+				return groups[i].riders+j;
 		}
 	}
 
-	return NULL; 
+	return 0; 
 }
 
 HIBPGroupRider* get_groups()
@@ -47,7 +49,29 @@ HIBPGroupRider* get_groups()
 
 int get_groups_count()
 {
-	return group_count;
+	return groups_count;
+}
+
+void sort_riders(HIBPGroupRider* groups, int groups_count, fcompare_rider fcompare)
+{
+	int i,j,k;
+	HIBPRiderInfo* min = NULL;
+	for(i=0; i<groups_count; i++){
+		for(int j=0; j<groups[i].nriders; j++){
+				HIBPRiderInfo* cur = &(groups[i].riders[j]);
+				min = cur;
+			for(int k=j+1; k<groups[i].nriders; k++){
+				HIBPRiderInfo* rider = &(groups[i].riders[k]);
+				if( fcompare(min, rider) ) 
+					min = rider;
+			}
+
+			if(min != cur )
+				swap_rider(min, cur);
+				
+		}
+	}
+
 }
 
 static void sort_by_group(HIBPRiderInfo riders[], int nriders)
@@ -61,8 +85,20 @@ static void copy_rider(HIBPRiderInfo* src, HIBPRiderInfo* dst)
 
 	src->number = dst->number;
 	src->group= dst->group;
+	memcpy(src->results, dst->results, sizeof(dst->results));
 	strcpy(src->name, dst->name);
 	strcpy(src->team, dst->team);
+}
+
+void swap_rider(HIBPRiderInfo* src, HIBPRiderInfo* dst)
+{
+	if(src == dst)
+		return;
+
+	HIBPRiderInfo tmp;
+	copy_rider(&tmp, src);
+	copy_rider(src, dst);
+	copy_rider(dst, &tmp);
 }
 
 static void init_group_rider(HIBPGroupRider group_riders[], HIBPRiderInfo riders[], int nriders)
@@ -91,7 +127,7 @@ static void init_group_rider(HIBPGroupRider group_riders[], HIBPRiderInfo riders
 		}
 	}
 	group_riders[i].nriders = k;
-	groups_count = i;
+	groups_count = i+1;
 }
 
 static void read_all_riders()
@@ -106,23 +142,36 @@ static void read_all_riders()
 	memset(&groups, 0, sizeof(groups));
 
 	file_open(_PATH_RIDERS, "r");
+	char val[128]={0};
 	while( file_gets(buf, 127) != NULL)
 	{
-		sscanf(buf, "%d,%s,%s,%d", &num, name, team, &group);
-		riders[i].number = num;
-		riders[i].group = group;
-		strcpy(riders[i].name, name);
-		strcpy(riders[i].team, team);
+		riders[i].number = get_column_i(buf, 0);
+		riders[i].group = get_column_i(buf, 3);
+		strcpy(riders[i].name, get_column_str(buf, 1, val));
+		strcpy(riders[i].team, get_column_str(buf, 2, val));
+        	riders[i].results[0].pure_sec  = 86399;
+        	riders[i].results[0].pure_msec = 999;
+        	riders[i].results[0].sec  = 0;
+        	riders[i].results[0].msec = 0;
+        	riders[i].results[0].end_sec  = 0;
+        	riders[i].results[0].end_msec = 0;
 		i++;
 	}
 	riders_count=i;
 
-	sort_by_group(riders);
+	sort_by_group(riders, riders_count);
 	init_group_rider(groups, riders, riders_count);
 	file_close();
 }
 
 
-static void read_racing_riders()
+/*#include <stdio.h>
+
+int main()
 {
+	read_all_riders();
+	HIBPRiderInfo *r = get_rider_info(0);
+	HIBPRiderInfo *r2 = get_rider_info(116);
+	return 0;
 }
+*/

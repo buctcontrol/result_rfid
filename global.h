@@ -20,7 +20,11 @@
 #define    APP_SUCCESS                       0
 #define    APP_FAIL                        (-1)
 
-#define _MAX_RIDERS		512
+#define  WITH_RFID
+#define  TYPE_START 	0
+#define  TYPE_END	1
+#define  _PATH_START	"./autoresult.txt"
+#define  _PATH_END	"./end_result.txt"
 #define  LENGTH         1350
 
 typedef unsigned char uchar;
@@ -80,24 +84,9 @@ enum
     MAX         = 10
 };
 
-HIBPGroup groupStr[] = {
-    {"荣誉领骑"},
-    {"新人组"},
-    {"硬尾组"},
-    {"女子组"},
-    {"男子组"},
-    {"大众组"},
-    {"精英组"},
-    {"大师组"},
-    {"EBike"},
-    {"体验组"}
-};
+extern HIBPGroup groupStr[];
 
-HIBPTitle titleStr[] = {
-    {"冠军"},
-    {"亚军"},
-    {"季军"}
-};
+extern HIBPTitle titleStr[];
 
 #endif
 

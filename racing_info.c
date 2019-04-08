@@ -6,7 +6,7 @@ typedef struct
 {
 	char mode[8];
 	int cur_stage;
-	int total_stage;
+	int total_stages;
 	int cur_round;
 }RacingInfo;
 

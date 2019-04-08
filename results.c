@@ -1,8 +1,17 @@
 //
 //
 
+#include "global.h"
 #include "interface.h"
 #include "riders.h"
+#include "utils.h"
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+#include <stdlib.h>
+#include <net/if.h>
+#include <ctype.h>
+
 
 static int get_dev_fields(char *bp, struct interface *ife, int type)
 {
@@ -149,7 +158,7 @@ void read_finish()
 	if_readlist_proc("HIBP", TYPE_END);
 }
 
-static int calc_time(PINTERFACE* pCur)
+static int calc_time(PINTERFACE pCur)
 {
 	if(pCur->end_msec < pCur->msec)
 	{
@@ -163,10 +172,50 @@ static int calc_time(PINTERFACE* pCur)
 	}
 }
 
-static int calc_speed(PINTERFACE* pCur)
+
+static int calc_speed(PINTERFACE pCur)
 {
       	float float_time = pCur->pure_sec + pCur->pure_msec/1000;
 	pCur->speed = (LENGTH * 3.6) / float_time;
+}
+
+static int compare_rider_time(const HIBPRiderInfo* src, const HIBPRiderInfo* dst)
+{
+	if(   (dst->results[0].pure_sec < src->results[0].pure_sec) 
+	   || ((dst->results[0].pure_sec == src->results[0].pure_sec) && (dst->results[0].pure_msec < src->results[0].pure_msec))
+	 )
+	 {
+	 	return 1;	
+	 }
+
+	 return 0;
+}
+
+static void sort_by_time(HIBPGroupRider* groups, int groups_count)
+{
+	sort_riders(groups, groups_count, compare_rider_time);
+}
+
+static void calc_gap_time(HIBPGroupRider* groups, int groups_count)
+{
+	int i,j;
+	for(i=0; i<groups_count; i++){
+		for(int j=0; j<groups[i].nriders; j++){
+			HIBPRiderInfo* rider = &(groups[i].riders[j]);
+			PINTERFACE pMax = groups[i].riders[0].results;
+			PINTERFACE pCur = rider->results;
+			if(pCur->pure_msec < pMax->pure_msec)
+			{
+				pCur->gap_sec = (pCur->pure_sec - 1) - pMax->pure_sec;
+				pCur->gap_msec = 1000 + pCur->pure_msec - pMax->pure_msec;
+			}
+			else
+			{
+				pCur->gap_sec = pCur->pure_sec - pMax->pure_sec;
+				pCur->gap_msec = pCur->pure_msec - pMax->pure_msec;
+			}
+		}
+	}
 }
 
 void calc_result()
@@ -177,10 +226,10 @@ void calc_result()
 	list_for_each(pPos, &g_ife.list)
 	{
 		pCur = list_entry(pPos, struct interface, list);
-                if(!pCur->end_filled)
+                if(pCur->end_filled)
                 {
 		    	calc_time(pCur);
-		    	clac_speed(pCur);
+		    	calc_speed(pCur);
                 }
 
 		HIBPRiderInfo* rider = get_rider_info(pCur->id);
@@ -188,9 +237,44 @@ void calc_result()
 			rider->results[0]= *pCur;
 	}
 
-	sort_by_time(get_groups(), get_groups_count()):
+	sort_by_time(get_groups(), get_groups_count());
+	calc_gap_time(get_groups(), get_groups_count());
 }
 
-void sort_by_time(HIBPGroupRider* groups, int ngroups)
+
+
+
+/*#include <stdio.h>
+
+struct interface g_ife;
+
+int main()
 {
+	memset(&g_ife, 0, sizeof(g_ife));
+	INIT_LIST_HEAD(&g_ife.list);
+	read_start();
+	read_finish();
+	calc_result();
+
+	HIBPGroupRider* groups=get_groups();
+	char buf[256]={0};
+	for(int i=0; i<get_groups_count(); i++){
+		for(int j=0; j<groups[i].nriders; j++){
+			HIBPRiderInfo* r= groups[i].riders+j;
+			sprintf(buf, "%s,%d,%03d,%s,%s", groupStr[r->group].str, j+1, r->number, r->name, r->team);
+				PINTERFACE p = r->results;
+				sprintf(buf,"%s,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%d", buf,
+					(p->sec/60/60+8)%24, (p->sec/60)%60, (p->sec%60), p->msec,
+					(p->end_sec/60/60+8)%24, (p->end_sec/60)%60, (p->end_sec%60), p->end_msec,
+					(p->pure_sec/60/60)%24, (p->pure_sec/60)%60, (p->pure_sec%60), p->pure_msec,
+					(p->gap_sec/60/60)%24, (p->gap_sec/60)%60, (p->gap_sec%60), p->gap_msec,
+					p->points);
+
+			printf("%s\n", buf);
+		}
+			
+	}
+	
+	return 0;
 }
+*/
