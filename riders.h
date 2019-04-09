@@ -32,7 +32,7 @@ typedef struct
     unsigned int    number;
     char            name[64];
     char            team[128];
-    char 	    result_time[16];//hh:mm:ss.mmm
+    char    	    result_time[10][16];//stage time  hh:mm:ss.mmm
     int 	    group;
     INTERFACE	    results[10];//results[0] is the final result
 }HIBPRiderInfo;

@@ -77,7 +77,6 @@ static int if_readlist_proc(char *target, int type)
     struct interface *pCur = &g_ife;
     int err;
     int count = 0;
-    float float_time;
 
     if(type == TYPE_START)
     {
@@ -158,7 +157,7 @@ void read_finish()
 	if_readlist_proc("HIBP", TYPE_END);
 }
 
-static int calc_time(PINTERFACE pCur)
+static void calc_time(PINTERFACE pCur)
 {
 	if(pCur->end_msec < pCur->msec)
 	{
@@ -173,7 +172,7 @@ static int calc_time(PINTERFACE pCur)
 }
 
 
-static int calc_speed(PINTERFACE pCur)
+static void calc_speed(PINTERFACE pCur)
 {
       	float float_time = pCur->pure_sec + pCur->pure_msec/1000;
 	pCur->speed = (LENGTH * 3.6) / float_time;
@@ -198,7 +197,7 @@ static void sort_by_time(HIBPGroupRider* groups, int groups_count)
 
 static void calc_gap_time(HIBPGroupRider* groups, int groups_count)
 {
-	int i,j;
+	int i;
 	for(i=0; i<groups_count; i++){
 		for(int j=0; j<groups[i].nriders; j++){
 			HIBPRiderInfo* rider = &(groups[i].riders[j]);

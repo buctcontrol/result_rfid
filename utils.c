@@ -7,30 +7,28 @@
 
 char** strsplit(const char* str, const char* delim, int *count)
 {
-    char** res = NULL;
-    char*  part;
-    int i = 0;
+    	char** res = NULL;
+    	char*  part;
+    	int i = 0;
 
-    char* aux = strdup(str);
+    	char* aux = strdup(str);
 
-    part = strtok(aux, delim);
+    	part = strtok(aux, delim);
 
-    while(part){
-        res = (char**)realloc(res, (i + 1) * sizeof(char*));
-        *(res + i) = strdup(part);
+    	while(part){
+    	    res = (char**)realloc(res, (i + 1) * sizeof(char*));
+    	    *(res + i) = strdup(part);
 
-        part = strtok(NULL, delim);
-        i++;
-    }
+    	    part = strtok(NULL, delim);
+    	    i++;
+    	}
 
-    res = (char**)realloc(res, i * sizeof(char*));
-    *(res + i) = NULL;
-    *count = i;
-
-    return res;
+    	*count = i;
+        free(aux);
+    	return res;
 }
 
-static void free_arr(void** arr, int n)
+static void free_arr(char** arr, int n)
 {
 	int i;
 	for(i=0; i<n; i++)
@@ -44,13 +42,13 @@ int find_column(const char* buf, const char* key)
 	int i;
 	char **fields = strsplit(buf, ",", &count);
 	for(i=0; i<count; i++){
-		if(strcmp(key, fields[i])==0){
-			free(fields);
+		if(strstr(fields[i], key) != NULL){
+			free_arr(fields, count);
 			return i;
 		}
 	}
 
-	free(fields);
+	free_arr(fields, count);
 	return -1;
 }
 
@@ -62,7 +60,7 @@ int get_column_i(const char* buf, int idx)
 	if(idx < count)
 		val = atoi(fields[idx]);	
 
-	free(fields);
+	free_arr(fields, count);
 	return val;
 }
 
@@ -75,7 +73,7 @@ int get_column_f(const char* buf, int idx)
 	if(idx < count)
 		val = atof(fields[idx]);	
 
-	free(fields);
+	free_arr(fields, count);
 	return val;
 }
 
@@ -86,10 +84,9 @@ char* get_column_str(const char* buf, int idx, char val[])
 	if(idx < count)
 		strcpy(val, fields[idx]);	
 
-	free(fields);
+	free_arr(fields, count);
 	return val;
 }
-
 
 
 

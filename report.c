@@ -30,7 +30,7 @@ typedef struct
 
 static int compare_rider_points(const HIBPRiderInfo* src, const HIBPRiderInfo* dst)
 {
-	if(dst->results[0].points < src->results[0].points) 
+	if(dst->results[0].points > src->results[0].points) 
 	 	return 1;	
 
 	return 0;
@@ -59,12 +59,12 @@ static void read_report(HIBPGroupRider* groups, const char* fname)
 			gid_tmp = gid;
 		}
 		groups[gid].group=gid;
-		groups[gid].riders[i].number 			= get_column_i  (buf, 3);
-		strcpy(groups[gid].riders[i].name   		, get_column_str(buf, 4, tmp));
-		strcpy(groups[gid].riders[i].team   		, get_column_str(buf, 5, tmp));
-		strcpy(groups[gid].riders[i].result_time 	, get_column_str(buf, 8, tmp));
-		groups[gid].riders[i].results[0].speed		= get_column_f  (buf, 10);
-		groups[gid].riders[i].results[0].points		= get_column_i  (buf, 11);
+		groups[gid].riders[i].number 				= get_column_i  (buf, 3);
+		strcpy(groups[gid].riders[i].name   			, get_column_str(buf, 4, tmp));
+		strcpy(groups[gid].riders[i].team   			, get_column_str(buf, 5, tmp));
+		strcpy(groups[gid].riders[i].result_time[0] 	        , get_column_str(buf, 8, tmp));
+		groups[gid].riders[i].results[0].speed			= get_column_f  (buf, 10);
+		groups[gid].riders[i].results[0].points			= get_column_i  (buf, 11);
 		
 		i++;
 	}
@@ -78,14 +78,15 @@ static void calc_total_result(StageReport* stages, int nstages, int groups_count
 {
 	int i,j,k;
 	for(i=0; i<nstages; i++){
-		for(j=0; j<groups_count; j++){
-			for(k=0; k<stages[k].groups[j].nriders; k++){
+		for(j=0; j<_MAX_GROUPS; j++){
+			for(k=0; k<stages[i].groups[j].nriders; k++){
 				HIBPRiderInfo* srider= stages[i].groups[j].riders+k;
 				HIBPRiderInfo* rider = get_rider_info(srider->number);
 				if(rider != NULL) 
 				{
 					rider->results[0].points += srider->results[0].points;
 					rider->results[i+1] = srider->results[0];
+					strcpy(rider->result_time[i+1] , srider->result_time[0]);
 				}
 			}
 		}
@@ -95,11 +96,10 @@ static void calc_total_result(StageReport* stages, int nstages, int groups_count
 		
 }
 
-static char* get_headline_stage(char head[], int nstages)
+static char* get_headline_stage(char* head, int nstages)
 {
-	int i;
 	sprintf(head, "Group,No,Name,Team");
-	for(i=0; i<nstages; i++);
+	for(int i=0; i<nstages; i++)
 		sprintf(head, "%s,Stage%d,Stage%d Points", head, i+1, i+1);
 
 	sprintf(head, "%s,Total Points\n", head);
@@ -109,8 +109,6 @@ static char* get_headline_stage(char head[], int nstages)
 static void save_report_stage(HIBPGroupRider* groups, int groups_count, int nstages, const char* filename)
 {
 	char head[1024]; 
-	int i,j,k;
-
 	if(!file_open(filename, "w") )
 	{
 		fprintf(stderr, "report file[%s] open failed!", filename);
@@ -119,14 +117,14 @@ static void save_report_stage(HIBPGroupRider* groups, int groups_count, int nsta
 
 	file_puts( get_headline_stage(head, nstages) );
 	char buf[256];
-	for(i=0; i<groups_count; i++){
-		for(j=0; j<groups[i].nriders; j++){
+	for(int i=0; i<_MAX_GROUPS; i++){
+		for(int j=0; j<groups[i].nriders; j++){
 			HIBPRiderInfo* r= groups[i].riders+j;
 			sprintf(buf, "%s,%03d,%s,%s", groupStr[groups[i].group].str, r->number, r->name, r->team);
-			for(k=0; k<nstages; k++){
+			for(int k=0; k<nstages; k++){
 				PINTERFACE p = r->results+k+1;
-				sprintf(buf,"%s,%02d:%02d:%02d.%03d,%d\n", buf,
-					(p->pure_sec/60/60)%24, (p->pure_sec/60)%60, (p->pure_sec%60), p->pure_msec,
+				sprintf(buf,"%s,%s,%d", buf,
+					r->result_time[k+1],
 					p->points);
 			}
 			
@@ -192,12 +190,19 @@ static void generate_report_stage()
 	char fname[256];
 	for(i=0; i<groups_count; i++){
 		for(int j=0; j<groups[i].nriders; j++){
-			groups[i].riders[j].results[0].points = get_points(groups[i].group, j);
+			if(groups[i].riders[j].results[0].end_filled)
+				groups[i].riders[j].results[0].points = get_points(j+1, groups[i].group);
 		}
 	}
 
 	sprintf(fname, "result_stage_%d.csv", stage);
 	save_report(groups, groups_count, fname);
+
+	for(i=0; i<groups_count; i++){
+		for(int j=0; j<groups[i].nriders; j++){
+			groups[i].riders[j].results[0].points = 0;
+		}
+	}
 
 	for(i=0; i<stage; i++){
 		sprintf(fname, "result_stage_%d.csv", stage);
@@ -213,6 +218,7 @@ static void generate_report_stage()
 }
 
 
+/*
 #include <stdio.h>
 struct interface g_ife;
 
@@ -232,4 +238,4 @@ int main()
 
 	return 0;
 }
-
+*/

@@ -54,9 +54,8 @@ int get_groups_count()
 
 void sort_riders(HIBPGroupRider* groups, int groups_count, fcompare_rider fcompare)
 {
-	int i,j,k;
 	HIBPRiderInfo* min = NULL;
-	for(i=0; i<groups_count; i++){
+	for(int i=0; i<groups_count; i++){
 		for(int j=0; j<groups[i].nriders; j++){
 				HIBPRiderInfo* cur = &(groups[i].riders[j]);
 				min = cur;
@@ -88,7 +87,7 @@ static void copy_rider(HIBPRiderInfo* src, HIBPRiderInfo* dst)
 	memcpy(src->results, dst->results, sizeof(dst->results));
 	strcpy(src->name, dst->name);
 	strcpy(src->team, dst->team);
-	strcpy(src->result_time, dst->result_time);
+	memcpy(src->result_time, dst->result_time, sizeof(dst->result_time));
 }
 
 void swap_rider(HIBPRiderInfo* src, HIBPRiderInfo* dst)
@@ -134,9 +133,7 @@ static void init_group_rider(HIBPGroupRider group_riders[], HIBPRiderInfo riders
 static void read_all_riders()
 {
 	char buf[128];
-	char name[64], team[128];
-	int num=-1, group=-1;
-	int i=0,j=0,k=0;
+	int i=0;
 	HIBPRiderInfo riders[_MAX_RIDERS];
 	int riders_count=0;
 
