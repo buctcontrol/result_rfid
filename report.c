@@ -33,6 +33,16 @@ static int compare_rider_points(const HIBPRiderInfo* src, const HIBPRiderInfo* d
 	if(dst->results[0].points > src->results[0].points) 
 	 	return 1;	
 
+
+	if(dst->results[0].points == src->results[0].points){
+		if( strcmp(racing_get_mode(), "stage") == 0 ){  
+			int nstages = racing_get_stages();	
+			if(dst->results[nstages].points > src->results[nstages].points){
+				return 1;
+			}
+		}
+	}
+
 	return 0;
 }
 
@@ -47,7 +57,9 @@ static void read_report(HIBPGroupRider* groups, const char* fname)
 	char buf[256], tmp[64];
 	int i=0;
 	int gid_tmp=-1;
-	file_open(fname, "r");
+	if( !file_open(fname, "r"))
+		return;
+
 	file_gets(buf, 256);//skip head line
 	while( file_gets(buf, 256) != NULL)
 	{
@@ -124,7 +136,7 @@ static void save_report_stage(HIBPGroupRider* groups, int groups_count, int nsta
 			for(int k=0; k<nstages; k++){
 				PINTERFACE p = r->results+k+1;
 				sprintf(buf,"%s,%s,%d", buf,
-					r->result_time[k+1],
+					strlen(r->result_time[k+1])==0?"00:00:00":r->result_time[k+1],
 					p->points);
 			}
 			
@@ -162,7 +174,15 @@ static void save_report(HIBPGroupRider* groups, int groups_count, const char* fi
 			sprintf(buf, "%d,%s,%d,%03d,%s,%s", 
 				groups[i].group, groupStr[groups[i].group].str, j+1, r->number, r->name, r->team);
 
-				PINTERFACE p = r->results;
+			PINTERFACE p = r->results;
+			if(p->sec == 0){
+				sprintf(buf,"%s,DNS,DNS,DNS,DNS,0,0\n", buf);
+			}
+			else if(!p->end_filled){
+				sprintf(buf,"%s,DNF,DNF,DNF,DNF,0,0\n", buf);
+			}
+			else{
+
 				sprintf(buf,"%s,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%.3f,%d\n",
 					buf,
 					(p->sec/60/60+8)%24, (p->sec/60)%60, (p->sec%60), p->msec,
@@ -170,9 +190,10 @@ static void save_report(HIBPGroupRider* groups, int groups_count, const char* fi
 					(p->pure_sec/60/60)%24, (p->pure_sec/60)%60, (p->pure_sec%60), p->pure_msec,
 					(p->gap_sec/60/60)%24, (p->gap_sec/60)%60, (p->gap_sec%60), p->gap_msec,
 					p->speed, p->points);
+			}
 
 			file_puts(buf);
-			}
+		}
 	}
 
 	file_close();
@@ -205,7 +226,7 @@ static void generate_report_stage()
 	}
 
 	for(i=0; i<stage; i++){
-		sprintf(fname, "result_stage_%d.csv", stage);
+		sprintf(fname, "result_stage_%d.csv", i+1);
 		read_report(reports[i].groups, fname); 
 	}
 

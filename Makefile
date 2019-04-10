@@ -14,19 +14,42 @@ CFLAGS+= -g -Wall
 # CFLAGS+= -Wshadow -Wpointer-arith -Wcast-qual -Wsign-compare
 LDFLAGS+= -lpthread
 
+IOBJS = interface.o results.o report.o global.o riders.o utils.o points_rule.o racing_info.o
+
 all:		interface certy 
 	$(STRIP) interface
 #	cp interface /tftpboot/
 #	cp interface /target/
 
-interface:		interface.o 
-	$(CC) $(LDFLAGS) interface.o  $(LDLIBS) -o interface
+interface:	$(IOBJS)
+	$(CC) $(LDFLAGS) $(IOBJS) $(LDLIBS) -o interface
 
 certy:		certy.o 
 	$(CC) $(LDFLAGS) certy.o  $(LDLIBS) -o certy
 
 interface.o:	interface.c
 	$(CC) $(CFLAGS) -c interface.c
+
+riderc.o:	riderc.c
+	$(CC) $(CFLAGS) -c riderc.c
+
+report.o:	report.c
+	$(CC) $(CFLAGS) -c report.c
+
+results.o:	results.c
+	$(CC) $(CFLAGS) -c results.c
+
+points_rule.o:	points_rule.c
+	$(CC) $(CFLAGS) -c points_rule.c
+
+racing_info.o:	racing_info.c
+	$(CC) $(CFLAGS) -c racing_info.c
+
+global.o:	global.c
+	$(CC) $(CFLAGS) -c global.c
+
+utils.o:	utils.c
+	$(CC) $(CFLAGS) -c utils.c
 
 certy.o:	certy.c
 	$(CC) $(CFLAGS) -c certy.c
