@@ -69,7 +69,7 @@ static char *get_name(char *name, char *p)
     return p;
 }
 
-static int if_readlist_proc(char *target, int type)
+static int if_readlist_proc(const char *target, const char* fname, int type)
 {
     FILE *fh;
     char buf[512];
@@ -78,19 +78,7 @@ static int if_readlist_proc(char *target, int type)
     int err;
     int count = 0;
 
-    if(type == TYPE_START)
-    {
-        fh = fopen(_PATH_START, "r");
-    }
-    else if(type == TYPE_END)
-    {
-        fh = fopen(_PATH_END, "r");
-    }
-    else
-    {
-        printf("wrong type: %d\n", type);
-        return -1;
-    }
+    fh = fopen(fname, "r");
     if (!fh) {
 	fprintf(stderr, "Warning: cannot open %d (%s). Limited output.\n",
 	type, strerror(errno)); 
@@ -103,7 +91,7 @@ static int if_readlist_proc(char *target, int type)
         char *s, name[IFNAMSIZ];
         s = get_name(name, buf);    
         ife = (struct interface *)malloc(sizeof(struct interface));
-        memset(ife, sizeof(struct interface), 1);
+        memset(ife, 0, sizeof(struct interface));
         ife->pure_sec  = 86399;
         ife->pure_msec = 999;
         get_dev_fields(s, ife, type);
@@ -147,14 +135,14 @@ static int if_readlist_proc(char *target, int type)
     return err;
 }
 
-void read_start()
+int read_start(const char* fname)
 {
-	if_readlist_proc("HIBP", TYPE_START);
+	return if_readlist_proc("HIBP", fname, TYPE_START);
 }
 
-void read_finish()
+int read_finish(const char* fname)
 {
-	if_readlist_proc("HIBP", TYPE_END);
+	return if_readlist_proc("HIBP", fname, TYPE_END);
 }
 
 static void calc_time(PINTERFACE pCur)

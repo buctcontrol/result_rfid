@@ -26,12 +26,14 @@ HIBPGroupRider groups[_MAX_GROUPS];
 static int groups_count=0;
 
 static void read_all_riders();
+void init_riders()
+{
+	read_all_riders();
+}
+
 
 HIBPRiderInfo* get_rider_info(int No)
 {
-	if(groups_count == 0 )
-		read_all_riders();
-
 	for(int i=0; i<groups_count; i++){
 		for(int j=0; j<groups[i].nriders; j++){
 			if(groups[i].riders[j].number == No)

@@ -4,8 +4,8 @@
 #define RESULTS_H
 
 
-extern void read_start();
-extern void read_finish();
+extern int read_start(const char* fname);
+extern int read_finish(const char* fname);
 extern void calc_result();
 
 #endif /*RESULTS_H*/

@@ -45,8 +45,11 @@ typedef struct
 }HIBPGroupRider;
 
 
+extern void init_riders();
+
 ///get riders info by rider's number
 extern HIBPRiderInfo* get_rider_info(int No);
+
 extern HIBPGroupRider* get_groups();
 extern int get_groups_count();
 extern void swap_rider(HIBPRiderInfo* src, HIBPRiderInfo* dst);

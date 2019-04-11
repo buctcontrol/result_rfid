@@ -9,30 +9,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void generate_report_stage();
-
-void generate_report()
-{
-	const char* mode = racing_get_mode();
-	if( strcmp(mode, "stage") == 0 )
-		generate_report_stage(); 
-	else
-		fprintf(stderr, "mode[%s] not surpport!\n", mode);
-}
-
-
 
 typedef struct
 {
 	HIBPGroupRider groups[_MAX_GROUPS];	
 }StageReport;
 
-
 static int compare_rider_points(const HIBPRiderInfo* src, const HIBPRiderInfo* dst)
 {
 	if(dst->results[0].points > src->results[0].points) 
 	 	return 1;	
-
 
 	if(dst->results[0].points == src->results[0].points){
 		if( strcmp(racing_get_mode(), "stage") == 0 ){  
@@ -199,9 +185,8 @@ static void save_report(HIBPGroupRider* groups, int groups_count, const char* fi
 	file_close();
 }
 
-static void generate_report_stage()
+void generate_report_stage(int stage)
 {
-	int stage=racing_get_curstage();
 	int nstages=racing_get_stages();
 	HIBPGroupRider* groups = get_groups(); 
 	int groups_count = get_groups_count(); 

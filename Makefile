@@ -27,19 +27,19 @@ interface:	$(IOBJS)
 certy:		certy.o 
 	$(CC) $(LDFLAGS) certy.o  $(LDLIBS) -o certy
 
-interface.o:	interface.c
+interface.o:	interface.c racing_info.h results.h report.h
 	$(CC) $(CFLAGS) -c interface.c
 
-riderc.o:	riderc.c
+riderc.o:	riderc.c  utils.h
 	$(CC) $(CFLAGS) -c riderc.c
 
-report.o:	report.c
+report.o:	report.c global.h points_rule.h riders.h utils.h interface.h
 	$(CC) $(CFLAGS) -c report.c
 
-results.o:	results.c
+results.o:	results.c global.h riders.h utils.h interface.h
 	$(CC) $(CFLAGS) -c results.c
 
-points_rule.o:	points_rule.c
+points_rule.o:	points_rule.c global.h utils.h
 	$(CC) $(CFLAGS) -c points_rule.c
 
 racing_info.o:	racing_info.c
@@ -49,7 +49,7 @@ global.o:	global.c
 	$(CC) $(CFLAGS) -c global.c
 
 utils.o:	utils.c
-	$(CC) $(CFLAGS) -c utils.c
+	$(CC) $(CFLAGS) -c utils.c interface.h
 
 certy.o:	certy.c
 	$(CC) $(CFLAGS) -c certy.c

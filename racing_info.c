@@ -2,19 +2,28 @@
 //
 //
 
+#include <string.h>
+
+#define MAX_STAGES 10
+
 typedef struct
 {
 	char mode[8];
-	int cur_stage;
-	int total_stages;
-	int cur_round;
+	union{
+		struct {
+			int total_stages; //max 10 stages
+			int need_transfer[MAX_STAGES];
+		}stage;
+
+		struct {
+			int cur_round;
+		}round;
+	};
+
 }RacingInfo;
 
-static RacingInfo info={
-	{"stage"},
-	1,
-	3
-};
+static RacingInfo info;
+
 
 char* racing_get_mode()
 {
@@ -23,19 +32,24 @@ char* racing_get_mode()
 
 int racing_get_curstage()
 {
-	return info.cur_stage;
+	return 0;
 }
 
 int racing_get_stages()
 {
-	return info.total_stages;
+	return info.stage.total_stages;
 }
 
 int racing_get_curround()
 {
-	return info.cur_round;
+	return info.round.cur_round;
 }
 
-static void load_racing_info()
+void load_racing_info()
 {
+	strcpy(info.mode, "stage");
+	info.stage.total_stages = 3;
+	info.stage.need_transfer[0] = 1;
+	info.stage.need_transfer[1] = 0;
+	info.stage.need_transfer[2] = 0;
 }
