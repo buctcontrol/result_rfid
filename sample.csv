@@ -1,5 +1,5 @@
 最后输出的result.csv表头如下：
-组别, 排名, 号码牌, 姓名, 车队, Tansfer Start, Transfer End, Transfer Result, Stage1 Start, Stage1 End, Stage1 Result, Stage1 Points, Stage2 Start, Stage2 End, Stage2 Result, Stage2 Points, Stage3 Start, Stage3 End, Stage3 Result, Stage3 Points, Points
+组别, 排名, 号码牌, 姓名, 车队, Tansfer Start, Transfer End, Transfer Result, Stage1 Start, Stage1 End, Stage1 Result, Stage1 Points, Stage2 Start, Stage2 End, Stage2 Result, Stage2 Points, Stage3 Start, Stage3 End, Stage3 Result, Stage3 Points, Certify Filename, Points
 
 Transfer Result如果来得及，可以加DNQ(Do Not Qualify)，在riders.h中增加对每个Transfer关门时间定义，超过了就DNQ。
 DNQ的选手，StageX的只有StageX Result而StageX Points都为DNQ，即只有时间记录没积分。
