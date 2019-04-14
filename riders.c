@@ -34,7 +34,12 @@ void init_riders()
 
 HIBPRiderInfo* get_rider_info(int No)
 {
-	for(int i=0; i<groups_count; i++){
+	return get_rider_info_g(groups, No);
+}
+
+HIBPRiderInfo* get_rider_info_g(HIBPGroupRider* groups, int No)
+{
+	for(int i=0; i<_MAX_GROUPS; i++){
 		for(int j=0; j<groups[i].nriders; j++){
 			if(groups[i].riders[j].number == No)
 				return groups[i].riders+j;

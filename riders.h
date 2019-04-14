@@ -26,15 +26,17 @@
 #include "interface.h"
 
 
-
 typedef struct
 {
     unsigned int    number;
     char            name[64];
     char            team[128];
+    char    	    start_time[10][16];//stage time  hh:mm:ss.mmm
+    char    	    end_time[10][16];//stage time  hh:mm:ss.mmm
     char    	    result_time[10][16];//stage time  hh:mm:ss.mmm
     int 	    group;
     INTERFACE	    results[10];//results[0] is the final result
+    int qualify_r;//qualify results, 1-true, 0-false
 }HIBPRiderInfo;
 
 typedef struct
@@ -49,6 +51,7 @@ extern void init_riders();
 
 ///get riders info by rider's number
 extern HIBPRiderInfo* get_rider_info(int No);
+extern HIBPRiderInfo* get_rider_info_g(HIBPGroupRider* groups, int No);
 
 extern HIBPGroupRider* get_groups();
 extern int get_groups_count();

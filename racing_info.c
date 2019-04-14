@@ -3,6 +3,7 @@
 //
 
 #include <string.h>
+#include <stdio.h>
 
 #define MAX_STAGES 10
 
@@ -12,7 +13,7 @@ typedef struct
 	union{
 		struct {
 			int total_stages; //max 10 stages
-			int need_transfer[MAX_STAGES];
+			char transfer_shut[10][16];//transfer shut time
 		}stage;
 
 		struct {
@@ -28,6 +29,22 @@ static RacingInfo info;
 char* racing_get_mode()
 {
 	return info.mode;
+}
+
+int is_has_transfer(int stage)
+{
+	char fname[64];
+	sprintf(fname, "t%ds.txt", stage);
+	FILE* fp = fopen(fname, "r");
+	if(fp)
+		fclose(fp);
+
+	return fp!=NULL?1:0;
+}
+
+char* get_transer_shut_time(int stage)
+{
+	return info.stage.transfer_shut[stage-1];
 }
 
 int racing_get_curstage()
@@ -49,7 +66,5 @@ void load_racing_info()
 {
 	strcpy(info.mode, "stage");
 	info.stage.total_stages = 3;
-	info.stage.need_transfer[0] = 1;
-	info.stage.need_transfer[1] = 0;
-	info.stage.need_transfer[2] = 0;
+	strcpy(info.stage.transfer_shut[0], "00:02:00");
 }

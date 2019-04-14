@@ -42,7 +42,7 @@ results.o:	results.c global.h riders.h utils.h interface.h
 points_rule.o:	points_rule.c global.h utils.h
 	$(CC) $(CFLAGS) -c points_rule.c
 
-racing_info.o:	racing_info.c
+racing_info.o:	racing_info.c utils.h
 	$(CC) $(CFLAGS) -c racing_info.c
 
 global.o:	global.c
