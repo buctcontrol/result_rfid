@@ -19,6 +19,7 @@ void process_transfer(int i)
 	memset(&g_ife, 0, sizeof(g_ife));
 	INIT_LIST_HEAD(&g_ife.list);
 
+			init_riders();
 	sprintf(fname_start, "t%ds.txt", i+1);
 	sprintf(fname_finish, "t%de.txt", i+1);
 	read_start(fname_start);
@@ -37,6 +38,7 @@ void process_stage(int i)
 	memset(&g_ife, 0, sizeof(g_ife));
 	INIT_LIST_HEAD(&g_ife.list);
 
+			init_riders();
 	sprintf(fname_start, "s%ds.txt", i+1);
 	sprintf(fname_finish, "s%de.txt", i+1);
 	read_start(fname_start);
@@ -57,7 +59,6 @@ int main(void)
 	{
 		for(int i=0; i<racing_get_stages(); i++)
 		{
-			init_riders();
 
 			if(is_has_transfer(i+1))
 				process_transfer(i);

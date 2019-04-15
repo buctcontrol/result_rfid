@@ -104,7 +104,7 @@ static char* get_headline_stage(char* head, int nstages)
 		sprintf(head, "%s,Stage%d Start,Stage%d End,Stage%d Result,Stage%d Points", head, i+1, i+1, i+1, i+1);
 	}
 
-	sprintf(head, "%s,Points\n", head);
+	sprintf(head, "%s,Certify Filename,Points\n", head);
 	return head;
 }
 
@@ -123,8 +123,7 @@ static void read_transfer_report(HIBPGroupRider* groups, int stage, int is_copy)
 		for(int j=0; j<groups_t[i].nriders; j++){
 			HIBPRiderInfo* r= groups_t[i].riders+j;
 			HIBPRiderInfo* rr = get_rider_info_g(groups, r->number);
-			if( strcmp(r->result_time[stage-1], "DNS") == 0 
-			   ||strcmp(r->result_time[stage-1], "NDF") == 0
+			if(strcmp(r->result_time[stage-1], "NDF") == 0
 			   ||strcmp(r->result_time[stage-1], get_transer_shut_time(stage)) > 0
 			){
 				rr->qualify_r = 0;
@@ -138,7 +137,8 @@ static void read_transfer_report(HIBPGroupRider* groups, int stage, int is_copy)
 
 static void save_report_stage(HIBPGroupRider* groups, int groups_count, int nstages, const char* filename)
 {
-	char head[1024]; 
+	//char head[1024]; 
+	char certify[64]={0};
 	FILE* fp = fopen(filename, "w");
 	if(!fp)
 	{
@@ -146,12 +146,16 @@ static void save_report_stage(HIBPGroupRider* groups, int groups_count, int nsta
 		return;
 	}
 
-	fputs(get_headline_stage(head, nstages), fp);
+	//fputs(get_headline_stage(head, nstages), fp);
 	char buf[256];
 	for(int i=0; i<_MAX_GROUPS; i++){
 		for(int j=0; j<groups[i].nriders; j++){
 			HIBPRiderInfo* r= groups[i].riders+j;
-			sprintf(buf, "%s,%d,%03d,%s,%s", groupStr[groups[i].group].str, j+1, r->number, r->name, r->team);
+			char rank[4]="-";
+			if(r->results[0].points > 0 )
+				sprintf(rank,"%d", j+1); 
+
+			sprintf(buf, "%s,%s,%03d,%s,%s", groupStr[groups[i].group].str, rank, r->number, r->name, r->team);
 			for(int k=0; k<nstages; k++){
 				PINTERFACE p = r->results+k+1;
 				if(is_has_transfer(k+1)){
@@ -172,6 +176,8 @@ static void save_report_stage(HIBPGroupRider* groups, int groups_count, int nsta
 						r->end_time[k+1],
 						tr->qualify_r==1?r->result_time[k+1]:"DNQ",
 						p->points);
+					
+					free(groups_t);
 				}
 				else{
 					sprintf(buf,"%s,%s,%s,%s,%d", buf,
@@ -181,8 +187,12 @@ static void save_report_stage(HIBPGroupRider* groups, int groups_count, int nsta
 						p->points);
 				}
 			}
-			
-			sprintf(buf,"%s,%d\n", buf, r->results[0].points);
+			char* idx = strstr(r->name, " ");
+			if(idx)
+				*idx='\0';
+
+			sprintf(certify, "%d-%s.png", j+1, r->name);	
+			sprintf(buf,"%s,%s,%d\n", buf, certify, r->results[0].points);
 			fputs(buf, fp);
 		}
 	}
@@ -221,7 +231,9 @@ void save_report(HIBPGroupRider* groups, int groups_count, const char* filename)
 				sprintf(buf,"%s,DNS,DNS,DNS,DNS,0,0\n", buf);
 			}
 			else if(!p->end_filled){
-				sprintf(buf,"%s,DNF,DNF,DNF,DNF,0,0\n", buf);
+				sprintf(buf,"%s,%02d:%02d:%02d.%03d,DNF,DNF,DNF,0,0\n", buf, 
+					(p->sec/60/60+8)%24, (p->sec/60)%60, (p->sec%60), p->msec
+				);
 			}
 			else{ 
 

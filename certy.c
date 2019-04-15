@@ -7,6 +7,7 @@
 #include <sys/time.h>
 #include <net/if.h>
 #include "interface.h"
+#include "global.h"
 #include "riders.h"
 
 #define WITH_RFID       1
