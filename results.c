@@ -12,6 +12,9 @@
 #include <net/if.h>
 #include <ctype.h>
 
+#ifndef IFNAMSIZ
+#define IFNAMSIZ 64
+#endif
 
 static int get_dev_fields(char *bp, struct interface *ife, int type)
 {

@@ -36,7 +36,7 @@ typedef struct
     char    	    result_time[10][16];//stage time  hh:mm:ss.mmm
     int 	    group;
     INTERFACE	    results[10];//results[0] is the final result
-    int qualify_r;//qualify results, 1-true, 0-false
+    char qualify_r;//qualify results, 0-normal, 1-dnq, 2-dns, 3->dnf
 }HIBPRiderInfo;
 
 typedef struct

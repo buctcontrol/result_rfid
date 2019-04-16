@@ -4,6 +4,8 @@
 
 #include <string.h>
 #include <stdio.h>
+#include "global.h"
+#include "riders.h"
 
 #define MAX_STAGES 10
 
@@ -13,7 +15,7 @@ typedef struct
 	union{
 		struct {
 			int total_stages; //max 10 stages
-			char transfer_shut[10][16];//transfer shut time
+			char transfer_shut[_MAX_GROUPS][MAX_STAGES][16];// group-stage transfer shut time
 		}stage;
 
 		struct {
@@ -31,6 +33,14 @@ char* racing_get_mode()
 	return info.mode;
 }
 
+int is_has_transfer_group(int group)
+{
+	if(group == EBIKE)
+		return 0;
+
+	return 1;
+}
+
 int is_has_transfer(int stage)
 {
 	char fname[64];
@@ -42,9 +52,19 @@ int is_has_transfer(int stage)
 	return fp!=NULL?1:0;
 }
 
-char* get_transer_shut_time(int stage)
+char* get_transer_shut_time(int group, int stage)
 {
-	return info.stage.transfer_shut[stage-1];
+	if(group >= _MAX_GROUPS){
+		fprintf(stderr, "get_transfer_shut_time: group out idx");
+		exit(1);
+	}
+
+	if(stage > MAX_STAGES){
+		fprintf(stderr, "get_transfer_shut_time: stage out idx");
+		exit(1);
+	}
+
+	return info.stage.transfer_shut[group][stage-1];
 }
 
 int racing_get_curstage()
@@ -66,5 +86,8 @@ void load_racing_info()
 {
 	strcpy(info.mode, "stage");
 	info.stage.total_stages = 3;
-	strcpy(info.stage.transfer_shut[0], "00:02:00");
+	strcpy(info.stage.transfer_shut[WOMAN][0], "01:30:00");
+	strcpy(info.stage.transfer_shut[TASTE][0], "01:30:00");
+	strcpy(info.stage.transfer_shut[MAN][0], "01:00:00");
+	strcpy(info.stage.transfer_shut[MASTER][0], "01:00:00");
 }

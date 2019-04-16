@@ -1,5 +1,5 @@
 Group,GroupName,Rank,No,Name,Team,SartTime,EndTime,ResultTime,GapTime,AvgSpeed,Points
-8,EBike,1,001,丁再刚,勇峰自行车公园,DNS,DNS,DNS,DNS,0,0
+8,EBike,1,001,丁再刚,勇峰自行车公园,12:12:49.496,12:18:01.080,00:05:11.584,00:00:00.000,15.627,500
 8,EBike,2,002,楼文钧,假日单车山地队,DNS,DNS,DNS,DNS,0,0
 8,EBike,3,003,章子俊,石舌章队,DNS,DNS,DNS,DNS,0,0
 8,EBike,4,004,刘卓,虬龙科技,DNS,DNS,DNS,DNS,0,0
@@ -7,18 +7,18 @@ Group,GroupName,Rank,No,Name,Team,SartTime,EndTime,ResultTime,GapTime,AvgSpeed,P
 8,EBike,6,006,姚路,轻蜂,DNS,DNS,DNS,DNS,0,0
 8,EBike,7,007,王蒙,杭州Trek,DNS,DNS,DNS,DNS,0,0
 8,EBike,8,008,仰海龙,蛟龙,DNS,DNS,DNS,DNS,0,0
-4,男子组,1,101,雷星,HangZhou Giant Racing,DNS,DNS,DNS,DNS,0,0
-4,男子组,2,102,吴超,长沙顺时针车队,DNS,DNS,DNS,DNS,0,0
-4,男子组,3,103,周小焜,长沙CYCGO速行俱乐部,DNS,DNS,DNS,DNS,0,0
-4,男子组,4,104,唐梦麒,北京GDRRacingTeam,DNS,DNS,DNS,DNS,0,0
-4,男子组,5,105,周吉强,假日单车山地队,DNS,DNS,DNS,DNS,0,0
-4,男子组,6,106,周晓龙,双轮汇SLHRacing,DNS,DNS,DNS,DNS,0,0
-4,男子组,7,107,方子凡,双轮汇SLHRacing,DNS,DNS,DNS,DNS,0,0
-4,男子组,8,108,黄立观,假日单车山地队,DNS,DNS,DNS,DNS,0,0
-4,男子组,9,109,梅雨龙,假日单车山地队,DNS,DNS,DNS,DNS,0,0
+4,男子组,1,106,周晓龙,双轮汇SLHRacing,12:32:00.255,12:34:23.203,00:02:22.948,00:00:00.000,34.225,500
+4,男子组,2,103,周小焜,长沙CYCGO速行俱乐部,13:03:39.180,13:06:09.898,00:02:30.718,00:00:07.770,32.400,450
+4,男子组,3,104,唐梦麒,北京GDRRacingTeam,13:04:48.825,13:07:19.855,00:02:31.030,00:00:08.082,32.185,420
+4,男子组,4,108,黄立观,假日单车山地队,12:36:32.813,12:39:07.173,00:02:34.360,00:00:11.412,31.558,400
+4,男子组,5,102,吴超,长沙顺时针车队,12:23:23.041,12:26:02.265,00:02:39.224,00:00:16.276,30.566,390
+4,男子组,6,107,方子凡,双轮汇SLHRacing,12:34:02.108,12:36:48.630,00:02:46.522,00:00:23.574,29.277,380
+4,男子组,7,105,周吉强,假日单车山地队,12:29:44.995,12:32:32.357,00:02:47.362,00:00:24.414,29.102,370
+4,男子组,8,109,梅雨龙,假日单车山地队,12:38:12.347,12:41:12.347,00:03:00.000,00:00:37.052,27.000,0
+4,男子组,9,101,雷星,HangZhou Giant Racing,DNS,DNS,DNS,DNS,0,0
 4,男子组,10,110,马琰,假日单车山地队,DNS,DNS,DNS,DNS,0,0
 4,男子组,11,111,孙祺龙,假日单车山地队,DNS,DNS,DNS,DNS,0,0
-4,男子组,12,112,杜芳旭,CYCGO速行车队兼长沙迪卡侬旗舰店运动大使,DNS,DNS,DNS,DNS,0,0
+4,男子组,12,112,杜芳旭,长沙CYCGO速行俱乐部,DNS,DNS,DNS,DNS,0,0
 4,男子组,13,113,俞斌,鬼魅仔车队,DNS,DNS,DNS,DNS,0,0
 4,男子组,14,114,金鑫越,上虞跳跳驴,DNS,DNS,DNS,DNS,0,0
 4,男子组,15,115,杨琦,27Bike上海能量x生滑,DNS,DNS,DNS,DNS,0,0
@@ -58,7 +58,7 @@ Group,GroupName,Rank,No,Name,Team,SartTime,EndTime,ResultTime,GapTime,AvgSpeed,P
 4,男子组,49,149,马力,漫奇车队,DNS,DNS,DNS,DNS,0,0
 4,男子组,50,150,王国栋,Byron,DNS,DNS,DNS,DNS,0,0
 4,男子组,51,151,应明浩,HIBP,DNS,DNS,DNS,DNS,0,0
-3,女子组,1,201,张佳莉,鬼魅仔车队,DNS,DNS,DNS,DNS,0,0
+3,女子组,1,201,张佳莉,鬼魅仔车队,12:20:29.986,12:23:13.765,00:02:43.779,00:00:00.000,29.816,0
 3,女子组,2,202,浦慧菁,西虹试飞客队,DNS,DNS,DNS,DNS,0,0
 3,女子组,3,203,陈海玲,27Bike上海能量x生滑,DNS,DNS,DNS,DNS,0,0
 3,女子组,4,204,李爱芹,27Bike上海能量x生滑,DNS,DNS,DNS,DNS,0,0
@@ -68,7 +68,7 @@ Group,GroupName,Rank,No,Name,Team,SartTime,EndTime,ResultTime,GapTime,AvgSpeed,P
 7,大师组,3,403,陈海川,西虹试飞客队,DNS,DNS,DNS,DNS,0,0
 7,大师组,4,404,高一洋,上海魅力单车,DNS,DNS,DNS,DNS,0,0
 7,大师组,5,405,戴乐鸣,上海魅力单车,DNS,DNS,DNS,DNS,0,0
-7,大师组,6,406,肖辉,长沙CYCGO速行俱乐,DNS,DNS,DNS,DNS,0,0
+7,大师组,6,406,肖辉,长沙CYCGO速行俱乐部,DNS,DNS,DNS,DNS,0,0
 7,大师组,7,407,ASH/阿什,HIBP,DNS,DNS,DNS,DNS,0,0
 7,大师组,8,408,刘怡,省级机关自行车队,DNS,DNS,DNS,DNS,0,0
 7,大师组,9,409,Ian Douglas-Jones,Team Fuzzy Balls,DNS,DNS,DNS,DNS,0,0
