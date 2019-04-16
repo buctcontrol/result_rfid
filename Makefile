@@ -8,13 +8,14 @@ STRIP	= $(CROSS)strip
 
 BINDIR = /usr/local/sbin
 MANDIR = /usr/local/man
-CFLAGS+= -g -Wall -std=c99
+CFLAGS+= -g -Wall -std=gnu99
 # CFLAGS+= -DHAS_FGETLN -DHAS_STRLCPY
 # CFLAGS+= -Wall -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations
 # CFLAGS+= -Wshadow -Wpointer-arith -Wcast-qual -Wsign-compare
 LDFLAGS+= -lpthread
 
 IOBJS = interface.o results.o report.o global.o riders.o utils.o points_rule.o racing_info.o
+CEBJS = certy.o results.o report.o global.o riders.o utils.o points_rule.o racing_info.o
 
 all:		interface certy 
 	$(STRIP) interface
@@ -24,8 +25,8 @@ all:		interface certy
 interface:	$(IOBJS)
 	$(CC) $(LDFLAGS) $(IOBJS) $(LDLIBS) -o interface
 
-certy:		certy.o 
-	$(CC) $(LDFLAGS) certy.o  $(LDLIBS) -o certy
+certy:		$(CEBJS)
+	$(CC) $(LDFLAGS) $(CEBJS)  $(LDLIBS) -o certy
 
 interface.o:	interface.c racing_info.h results.h report.h
 	$(CC) $(CFLAGS) -c interface.c
