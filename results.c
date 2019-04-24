@@ -76,7 +76,7 @@ static int if_readlist_proc(const char *target, const char* fname, int type)
 {
     FILE *fh;
     char buf[512];
-    struct interface *ife;
+    struct interface *ife, *tmp;
     struct interface *pCur = &g_ife;
     int err;
     int count = 0;
@@ -106,20 +106,28 @@ static int if_readlist_proc(const char *target, const char* fname, int type)
         switch(type)
         {
             case TYPE_START:
-                list_add_tail(&ife->list, &pCur->list);
+	    	//多条start取最后一条
+                tmp = cliFindClassById(ife->id);
+		if(tmp!= NULL)
+		{
+                    tmp->sec = ife->sec;
+                    tmp->msec = ife->msec;
+		    free(ife);
+		}
+		else
+                	list_add_tail(&ife->list, &pCur->list);
+
                 break;
 
             case TYPE_END:
-#ifdef WITH_RFID
+	    	//多条end取第一条
                 pCur = cliFindClassById(ife->end_id);
-#else
-                pCur = cliFindClassById(count);
-#endif
                 if((pCur != NULL) && (!pCur->end_filled))
                 {
                     pCur->end_sec = ife->end_sec;
                     pCur->end_msec = ife->end_msec;
                     pCur->end_filled = 1;   //for drop dup
+		    free(ife);
                 }
                 break;
 
@@ -234,7 +242,9 @@ void calc_result()
 
 
 
-/*#include <stdio.h>
+//for test
+#if 0
+#include <stdio.h>
 
 struct interface g_ife;
 
@@ -242,8 +252,8 @@ int main()
 {
 	memset(&g_ife, 0, sizeof(g_ife));
 	INIT_LIST_HEAD(&g_ife.list);
-	read_start();
-	read_finish();
+	read_start("s2s.txt");
+	read_finish("s2e.txt");
 	calc_result();
 
 	HIBPGroupRider* groups=get_groups();
@@ -267,4 +277,4 @@ int main()
 	
 	return 0;
 }
-*/
+#endif

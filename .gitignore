@@ -1,0 +1,5 @@
+*.o
+a.out
+*.txt
+*.csv
+interface
