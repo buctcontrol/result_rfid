@@ -18,7 +18,7 @@ IOBJS = interface.o results.o report.o global.o riders.o utils.o points_rule.o r
 CEBJS = certy.o results.o report.o global.o riders.o utils.o points_rule.o racing_info.o
 
 all:		interface certy 
-#	$(STRIP) interface
+	$(STRIP) interface
 #	cp interface /tftpboot/
 #	cp interface /target/
 
