@@ -21,7 +21,6 @@
 
 #define _MAX_RIDERS	512
 #define _PATH_RIDERS 	"./riders_info.csv"
-#define _MAX_GROUPS 	10
 
 #include "interface.h"
 

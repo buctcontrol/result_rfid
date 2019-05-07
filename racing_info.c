@@ -15,7 +15,7 @@ typedef struct
 	union{
 		struct {
 			int total_stages; //max 10 stages
-			char transfer_shut[_MAX_GROUPS][MAX_STAGES][16];// group-stage transfer shut time
+			char transfer_shut[MAX_GROUPS][MAX_STAGES][16];// group-stage transfer shut time
 		}stage;
 
 		struct {
@@ -54,7 +54,7 @@ int is_has_transfer(int stage)
 
 char* get_transer_shut_time(int group, int stage)
 {
-	if(group >= _MAX_GROUPS){
+	if(group >= MAX_GROUPS){
 		fprintf(stderr, "get_transfer_shut_time: group out idx");
 		exit(1);
 	}
@@ -85,9 +85,6 @@ int racing_get_curround()
 void load_racing_info()
 {
 	strcpy(info.mode, "stage");
-	info.stage.total_stages = 3;
-	strcpy(info.stage.transfer_shut[WOMAN][0], "01:30:00");
-	strcpy(info.stage.transfer_shut[TASTE][0], "01:30:00");
-	strcpy(info.stage.transfer_shut[MAN][0], "01:00:00");
-	strcpy(info.stage.transfer_shut[MASTER][0], "01:00:00");
+	info.stage.total_stages = 1;
+	strcpy(info.stage.transfer_shut[CAT][0], "01:00:00");
 }

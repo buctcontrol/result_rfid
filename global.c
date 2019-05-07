@@ -12,7 +12,8 @@ HIBPGroup groupStr[] = {
     {"精英组"},
     {"大师组"},
     {"EBike"},
-    {"体验组"}
+    {"体验组"},
+    {"野猫组"}
 };
 
 HIBPTitle titleStr[] = {

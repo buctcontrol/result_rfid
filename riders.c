@@ -18,11 +18,12 @@
 
 #include "riders.h"
 #include "utils.h"
+#include "global.h"
 #include <string.h>
 
 
 
-HIBPGroupRider groups[_MAX_GROUPS];
+HIBPGroupRider groups[MAX_GROUPS];
 static int groups_count=0;
 
 static void read_all_riders();
@@ -39,7 +40,7 @@ HIBPRiderInfo* get_rider_info(int No)
 
 HIBPRiderInfo* get_rider_info_g(HIBPGroupRider* groups, int No)
 {
-	for(int i=0; i<_MAX_GROUPS; i++){
+	for(int i=0; i<MAX_GROUPS; i++){
 		for(int j=0; j<groups[i].nriders; j++){
 			if(groups[i].riders[j].number == No)
 				return groups[i].riders+j;

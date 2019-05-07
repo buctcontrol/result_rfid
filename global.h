@@ -81,7 +81,8 @@ enum
     MASTER      = 7,
     EBIKE       = 8,
     TASTE       = 9,
-    MAX         = 10
+    CAT         = 10,
+    MAX_GROUPS 	= 11
 };
 
 extern HIBPGroup groupStr[];
