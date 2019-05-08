@@ -8,7 +8,7 @@ STRIP	= $(CROSS)strip
 
 BINDIR = /usr/local/sbin
 MANDIR = /usr/local/man
-CFLAGS+= -g -Wall -std=gnu99
+CFLAGS+= -g -Wall -std=gnu99 -Wl,-stack=10240
 # CFLAGS+= -DHAS_FGETLN -DHAS_STRLCPY
 # CFLAGS+= -Wall -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations
 # CFLAGS+= -Wshadow -Wpointer-arith -Wcast-qual -Wsign-compare
