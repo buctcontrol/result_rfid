@@ -38,6 +38,22 @@ static void sort_by_points(HIBPGroupRider* groups, int groups_count)
 	sort_riders(groups, groups_count, compare_rider_points);
 }
 
+static int compare_rider_time(const HIBPRiderInfo* src, const HIBPRiderInfo* dst)
+{
+	//printf("rider:%d, rtime:%s => rider:%d, rtime:%s\n", src->number, src->result_time[0],dst->number, dst->result_time[0]); 
+	if(  strcmp(dst->result_time[0], src->result_time[0]) < 0 ) 
+	{
+	 	return 1;	
+	}
+
+	return 0;
+}
+
+static void sort_by_time(HIBPGroupRider* groups, int groups_count)
+{
+	sort_riders(groups, groups_count, compare_rider_time);
+}
+
 static void read_report(HIBPGroupRider* groups, const char* fname) 
 {
 	char buf[256], tmp[64];
@@ -74,6 +90,7 @@ static void read_report(HIBPGroupRider* groups, const char* fname)
 
 }
 
+#if 0
 static void calc_total_result(StageReport* stages, int nstages, int groups_count)
 {
 	int i,j,k;
@@ -93,6 +110,53 @@ static void calc_total_result(StageReport* stages, int nstages, int groups_count
 		}
 	}
 }
+#else
+static void calc_total_result(StageReport* stages, int nstages, int groups_count)
+{
+	int i,j,k;
+	for(i=0; i<nstages; i++){
+		for(j=0; j<_MAX_GROUPS; j++){
+			for(k=0; k<stages[i].groups[j].nriders; k++){
+				HIBPRiderInfo* srider= stages[i].groups[j].riders+k;
+				HIBPRiderInfo* rider = get_rider_info(srider->number);
+				if(rider != NULL) {
+					rider->results[0].points = 0;
+					rider->results[i+1] = srider->results[0];
+					strcpy(rider->start_time[i+1] , srider->start_time[0]);
+					strcpy(rider->end_time[i+1] , srider->end_time[0]);
+					strcpy(rider->result_time[i+1] , srider->result_time[0]);
+				}
+			}
+		}
+	}
+
+	
+	HIBPGroupRider* groups = get_groups();
+	for(j=0; j<_MAX_GROUPS; j++){
+		for(k=0; k<groups[j].nriders; k++){
+			HIBPRiderInfo* rider= groups[j].riders+k;
+			strcpy(rider->start_time[0] , rider->start_time[1]);
+			strcpy(rider->end_time[0] , rider->end_time[1]);
+			strcpy(rider->result_time[0] , rider->result_time[1]);
+		}
+	}
+
+	for(i=1; i<nstages; i++){
+		for(j=0; j<_MAX_GROUPS; j++){
+			for(k=0; k<groups[j].nriders; k++){
+				HIBPRiderInfo* rider= groups[j].riders+k;
+				if(strcmp(rider->result_time[i+1], rider->result_time[0]) < 0 ){
+					strcpy(rider->start_time[0] , rider->start_time[i+1]);
+					strcpy(rider->end_time[0] , rider->end_time[i+1]);
+					strcpy(rider->result_time[0] , rider->result_time[i+1]);
+				}
+
+				printf("no=%d, result_time=%s\n", rider->number, rider->result_time[0]);
+			}
+		}
+	}
+}
+#endif
 
 static char* get_headline_stage(char* head, int nstages)
 {
@@ -135,7 +199,7 @@ static void read_transfer_report(HIBPGroupRider* groups, int stage, int is_copy)
 	}
 }
 
-static void save_report_stage(HIBPGroupRider* groups, int groups_count, int nstages, const char* filename)
+static void save_final_report(HIBPGroupRider* groups, int groups_count, int nstages, const char* filename)
 {
 	//char head[1024]; 
 	char certify[64]={0};
@@ -156,43 +220,9 @@ static void save_report_stage(HIBPGroupRider* groups, int groups_count, int nsta
 				sprintf(rank,"%d", j+1); 
 
 			sprintf(buf, "%s,%s,%03d,%s,%s", groupStr[groups[i].group].str, rank, r->number, r->name, r->team);
-			for(int k=0; k<nstages; k++){
-				PINTERFACE p = r->results+k+1;
-				if(is_has_transfer(k+1)){
 					
-					HIBPGroupRider *groups_t = (HIBPGroupRider*)malloc(sizeof(HIBPGroupRider)*_MAX_GROUPS);
-					read_transfer_report(groups_t, k+1, 1);
-					HIBPRiderInfo* tr = get_rider_info_g(groups_t, r->number);
-					if(tr == NULL){
-						fprintf(stderr, "transfer rider not found");
-						exit(1);
-					}
-
-					sprintf(buf,"%s,%s,%s,%s,%s,%s,%s,%d", buf,
-						tr->start_time[0],
-						tr->end_time[0],
-						tr->qualify_r==1?tr->result_time[0]:"DNQ",
-						r->start_time[k+1],
-						r->end_time[k+1],
-						tr->qualify_r==1?r->result_time[k+1]:"DNQ",
-						p->points);
-					
-					free(groups_t);
-				}
-				else{
-					sprintf(buf,"%s,%s,%s,%s,%d", buf,
-						r->start_time[k+1],
-						r->end_time[k+1],
-						r->result_time[k+1],
-						p->points);
-				}
-			}
-			char* idx = strstr(r->name, " ");
-			if(idx)
-				*idx='\0';
-
 			sprintf(certify, "%d-%s.png", j+1, r->name);	
-			sprintf(buf,"%s,%s,%d\n", buf, certify, r->results[0].points);
+			sprintf(buf,"%s,%s,%d,%s\n", buf, r->result_time[0], r->results[0].points, certify);
 			fputs(buf, fp);
 		}
 	}
@@ -253,13 +283,24 @@ void save_report(HIBPGroupRider* groups, int groups_count, const char* filename)
 	file_close();
 }
 
+void gen_points(HIBPGroupRider* groups, int groups_count)
+{
+	for(int i=0; i<groups_count; i++){
+		for(int j=0; j<groups[i].nriders; j++){
+			if(groups[i].riders[j].results[0].end_filled){
+				groups[i].riders[j].results[0].points = get_points(j+1, groups[i].group);
+			}
+		}
+	}
+}
+
+//stage start from 1 to n
 void generate_report_stage(int stage)
 {
 	int nstages=racing_get_stages();
 	HIBPGroupRider* groups = get_groups(); 
 	int groups_count = get_groups_count(); 
 
-	StageReport* reports = (StageReport*)malloc(sizeof(StageReport)*nstages);
 	int i=0;
 	char fname[64];
 	if(is_has_transfer(stage))
@@ -273,7 +314,7 @@ void generate_report_stage(int stage)
 			if(groups[i].riders[j].results[0].end_filled
 			  &&groups[i].riders[j].qualify_r
 			){
-				groups[i].riders[j].results[0].points = get_points(j+1, groups[i].group);
+				groups[i].riders[j].results[0].points = 0.0;
 			}
 		}
 	}
@@ -287,38 +328,22 @@ void generate_report_stage(int stage)
 		}
 	}
 
-	for(i=0; i<stage; i++){
-		sprintf(fname, "result_stage_%d.csv", i+1);
-		read_report(reports[i].groups, fname); 
+	if( isLastStage(stage) ){
+
+		StageReport* reports = (StageReport*)malloc(sizeof(StageReport)*nstages);
+		for(i=0; i<nstages; i++){
+			sprintf(fname, "result_stage_%d.csv", i+1);
+			read_report(reports[i].groups, fname); 
+		}
+
+		sprintf(fname, "result.csv");
+		calc_total_result(reports, nstages, groups_count);
+		sort_by_time(groups, groups_count);
+		gen_points(groups, groups_count);
+		save_final_report(groups, groups_count, nstages, fname);
+
+		free(reports);
 	}
-
-	sprintf(fname, "result.csv");
-	calc_total_result(reports, nstages, groups_count);
-	sort_by_points(groups, groups_count);
-	save_report_stage(groups, groups_count, nstages, fname);
-
-	free(reports);
 }
 
 
-/*
-#include <stdio.h>
-struct interface g_ife;
-
-#include "results.h"
-
-int main()
-{
-	memset(&g_ife, 0, sizeof(g_ife));
-	INIT_LIST_HEAD(&g_ife.list);
-	read_start();
-	read_finish();
-	calc_result();
-	save_report(get_groups(), get_groups_count(), "result_stage_1.csv" );
-
-	HIBPGroupRider groups[_MAX_GROUPS];
-	read_report(groups, "result_stage_1.csv");
-
-	return 0;
-}
-*/

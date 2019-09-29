@@ -65,6 +65,12 @@ int racing_get_curround()
 void load_racing_info()
 {
 	strcpy(info.mode, "stage");
-	info.stage.total_stages = 3;
+	info.stage.total_stages = 2;
 	strcpy(info.stage.transfer_shut[0], "00:02:00");
 }
+
+int isLastStage(int stage)
+{
+	return stage == racing_get_stages();
+}
+
