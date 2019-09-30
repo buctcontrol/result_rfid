@@ -40,7 +40,6 @@ static void sort_by_points(HIBPGroupRider* groups, int groups_count)
 
 static int compare_rider_time(const HIBPRiderInfo* src, const HIBPRiderInfo* dst)
 {
-	//printf("rider:%d, rtime:%s => rider:%d, rtime:%s\n", src->number, src->result_time[0],dst->number, dst->result_time[0]); 
 	if(  strcmp(dst->result_time[0], src->result_time[0]) < 0 ) 
 	{
 	 	return 1;	
