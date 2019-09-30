@@ -66,6 +66,11 @@ int main(void)
 			process_stage(i);
 		}
 	}
+	else if( strcmp(mode, "round") == 0 )
+	{
+		for(int i=0; i<racing_get_stages(); i++)
+			process_stage(i);
+	}
 	else
 	{
 		fprintf(stderr, "[%s] not surpport!\n", mode);

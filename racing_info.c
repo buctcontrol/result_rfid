@@ -33,6 +33,10 @@ char* racing_get_mode()
 
 int is_has_transfer(int stage)
 {
+	char* mode = racing_get_mode();
+	if( strcmp(mode, "round") == 0 )
+		return 0;
+
 	char fname[64];
 	sprintf(fname, "t%ds.txt", stage);
 	FILE* fp = fopen(fname, "r");
@@ -64,7 +68,7 @@ int racing_get_curround()
 
 void load_racing_info()
 {
-	strcpy(info.mode, "stage");
+	strcpy(info.mode, "round");
 	info.stage.total_stages = 2;
 	strcpy(info.stage.transfer_shut[0], "00:02:00");
 }

@@ -151,7 +151,6 @@ static void calc_total_result(StageReport* stages, int nstages, int groups_count
 					strcpy(rider->result_time[0] , rider->result_time[i+1]);
 				}
 
-				printf("no=%d, result_time=%s\n", rider->number, rider->result_time[0]);
 			}
 		}
 	}
@@ -219,7 +218,38 @@ static void save_final_report(HIBPGroupRider* groups, int groups_count, int nsta
 			if(r->results[0].points > 0 )
 				sprintf(rank,"%d", j+1); 
 
-			sprintf(buf, "%s,%s,%03d,%s,%s", groupStr[groups[i].group].str, rank, r->number, r->name, r->team);
+			sprintf(buf, "%s,%s,%03d,%s,%s", get_group_name(groups[i].group), rank, r->number, r->name, r->team);
+			for(int k=0; k<nstages; k++){
+				PINTERFACE p = r->results+k+1;
+				if(is_has_transfer(k+1)){
+					
+					HIBPGroupRider *groups_t = (HIBPGroupRider*)malloc(sizeof(HIBPGroupRider)*_MAX_GROUPS);
+					read_transfer_report(groups_t, k+1, 1);
+					HIBPRiderInfo* tr = get_rider_info_g(groups_t, r->number);
+					if(tr == NULL){
+						fprintf(stderr, "transfer rider not found");
+						exit(1);
+					}
+
+					sprintf(buf,"%s,%s,%s,%s,%s,%s,%s,%d", buf,
+						tr->start_time[0],
+						tr->end_time[0],
+						tr->qualify_r==1?tr->result_time[0]:"DNQ",
+						r->start_time[k+1],
+						r->end_time[k+1],
+						tr->qualify_r==1?r->result_time[k+1]:"DNQ",
+						p->points);
+					
+					free(groups_t);
+				}
+				else{
+					sprintf(buf,"%s,%s,%s,%s,%d", buf,
+						r->start_time[k+1],
+						r->end_time[k+1],
+						r->result_time[k+1],
+						p->points);
+				}
+			}
 					
 			sprintf(certify, "%d-%s.png", j+1, r->name);	
 			sprintf(buf,"%s,%s,%d,%s\n", buf, r->result_time[0], r->results[0].points, certify);
@@ -287,7 +317,8 @@ void gen_points(HIBPGroupRider* groups, int groups_count)
 {
 	for(int i=0; i<groups_count; i++){
 		for(int j=0; j<groups[i].nriders; j++){
-			if(groups[i].riders[j].results[0].end_filled){
+			if(strcmp((const char*)groups[i].riders[j].result_time, "DNS") != 0 
+			  && strcmp((const char*)groups[i].riders[j].result_time, "DNF") != 0 ){
 				groups[i].riders[j].results[0].points = get_points(j+1, groups[i].group);
 			}
 		}

@@ -81,12 +81,16 @@ enum
     MASTER      = 7,
     EBIKE       = 8,
     TASTE       = 9,
-    MAX         = 10
+    CAT         = 10,
+    MADCAT      = 11,
+    MAX         = 12
 };
 
 extern HIBPGroup groupStr[];
 
 extern HIBPTitle titleStr[];
+
+extern char* get_group_name(int group);
 
 #endif
 

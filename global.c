@@ -2,6 +2,7 @@
 
 #include "global.h"
 
+
 HIBPGroup groupStr[] = {
     {"荣誉领骑"},
     {"新人组"},
@@ -12,7 +13,9 @@ HIBPGroup groupStr[] = {
     {"精英组"},
     {"大师组"},
     {"EBike"},
-    {"体验组"}
+    {"体验组"},
+    {"小野猫"},
+    {"疯猫"}
 };
 
 HIBPTitle titleStr[] = {
@@ -21,4 +24,12 @@ HIBPTitle titleStr[] = {
     {"季军"}
 };
 
+char* GROUP_UNDEF="GROUP_UNDEF";
 
+char* get_group_name(int group)
+{
+	if(group >= MAX)
+		return GROUP_UNDEF;
+
+	return groupStr[group].str;
+}
