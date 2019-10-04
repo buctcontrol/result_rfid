@@ -251,7 +251,7 @@ static void save_final_report(HIBPGroupRider* groups, int groups_count, int nsta
 			}
 					
 			sprintf(certify, "%d-%s.png", j+1, r->name);	
-			sprintf(buf,"%s,%s,%d,%s\n", buf, r->result_time[0], r->results[0].points, certify);
+			sprintf(buf,"%s,%s,%d,%s,%d\n", buf, r->result_time[0], r->results[0].points, certify, r->results[0].points);
 			fputs(buf, fp);
 		}
 	}
