@@ -75,6 +75,7 @@ static int if_readlist_proc(const char *target, const char* fname, int type)
     char buf[512];
     struct interface *ife;
     struct interface *pCur = &g_ife;
+    struct interface *pTmp = NULL;
     int err;
     int count = 0;
 
@@ -103,7 +104,9 @@ static int if_readlist_proc(const char *target, const char* fname, int type)
         switch(type)
         {
             case TYPE_START:
-                list_add_tail(&ife->list, &pCur->list);
+                pTmp = cliFindClassById(ife->id);
+                if(pTmp == NULL) 
+                	list_add_tail(&ife->list, &pCur->list);
                 break;
 
             case TYPE_END:
