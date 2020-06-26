@@ -7,6 +7,7 @@
 #include "racing_info.h"
 #include "results.h"
 #include "report.h"
+#include <sys/resource.h>
 
 struct interface g_ife;
 
@@ -50,6 +51,12 @@ void process_stage(int i)
 
 int main(void)
 {
+	struct rlimit r;
+	r.rlim_cur= 8*1024*1024*10;//stack size 80MB
+	setrlimit(RLIMIT_STACK, &r);
+	getrlimit(RLIMIT_STACK, &r);
+	printf("stack limit:cur=%ld\n", r.rlim_cur);
+
 	memset(&g_ife, 0, sizeof(g_ife));
 	INIT_LIST_HEAD(&g_ife.list);
 

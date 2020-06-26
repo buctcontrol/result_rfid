@@ -8,11 +8,13 @@ STRIP	= $(CROSS)strip
 
 BINDIR = /usr/local/sbin
 MANDIR = /usr/local/man
-CFLAGS+= -g -Wall -std=gnu99 -Wl,-stack=10240
+CFLAGS+= -g -Wall -std=gnu99
+#CFLAGS+= -fsanitize=address 
 # CFLAGS+= -DHAS_FGETLN -DHAS_STRLCPY
 # CFLAGS+= -Wall -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations
 # CFLAGS+= -Wshadow -Wpointer-arith -Wcast-qual -Wsign-compare
-LDFLAGS+= -lpthread
+LDFLAGS+= -lpthread 
+#LDFLAGS+= -fsanitize=address 
 
 IOBJS = interface.o results.o report.o global.o riders.o utils.o points_rule.o racing_info.o
 CEBJS = certy.o results.o report.o global.o riders.o utils.o points_rule.o racing_info.o

@@ -94,23 +94,9 @@ static void calc_total_result(StageReport* stages, int nstages, int groups_count
 	}
 }
 
-static char* get_headline_stage(char* head, int nstages)
-{
-	sprintf(head, "Group,Rank,No,Name,Team");
-	for(int i=0; i<nstages; i++){
-		if(is_has_transfer(i+1) )
-			sprintf(head, "%s,Transfer%d Start,Transfer%d End,Transfer%d Result", head, i+1, i+1, i+1);
-		
-		sprintf(head, "%s,Stage%d Start,Stage%d End,Stage%d Result,Stage%d Points", head, i+1, i+1, i+1, i+1);
-	}
-
-	sprintf(head, "%s,Certify Filename,Points\n", head);
-	return head;
-}
-
 static void read_transfer_report(HIBPGroupRider* groups, int stage, int is_copy) 
 {
-	char fname[16];
+	char fname[64];
 	sprintf(fname, "result_transfer_%d.csv", stage);
 	HIBPGroupRider groups_t[MAX_GROUPS];
 	memset(groups_t, 0, sizeof(HIBPGroupRider)*MAX_GROUPS);
@@ -139,7 +125,7 @@ static void read_transfer_report(HIBPGroupRider* groups, int stage, int is_copy)
 static void save_report_stage(HIBPGroupRider* groups, int groups_count, int nstages, const char* filename)
 {
 	//char head[1024]; 
-	char certify[64]={0};
+	char certify[128]={0};
 	FILE* fp = fopen(filename, "w");
 	if(!fp)
 	{
