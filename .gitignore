@@ -1,0 +1,7 @@
+*.o
+a.out
+*.txt
+*.csv
+interface
+certy
+*.gch
