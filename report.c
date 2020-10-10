@@ -98,7 +98,7 @@ static void read_transfer_report(HIBPGroupRider* groups, int stage, int is_copy)
 {
 	char fname[64];
 	sprintf(fname, "result_transfer_%d.csv", stage);
-	HIBPGroupRider groups_t[MAX_GROUPS];
+    HIBPGroupRider *groups_t = (HIBPGroupRider*)malloc(sizeof(HIBPGroupRider)*MAX_GROUPS);
 	memset(groups_t, 0, sizeof(HIBPGroupRider)*MAX_GROUPS);
 
 	read_report(groups_t, fname);
@@ -120,11 +120,12 @@ static void read_transfer_report(HIBPGroupRider* groups, int stage, int is_copy)
 
 		}
 	}
+
+    free(groups_t);
 }
 
-static void save_report_stage(HIBPGroupRider* groups, int groups_count, int nstages, const char* filename)
+static void save_total_report(HIBPGroupRider* groups, int groups_count, int nstages, const char* filename)
 {
-	//char head[1024]; 
 	char certify[128]={0};
 	FILE* fp = fopen(filename, "w");
 	if(!fp)
@@ -133,7 +134,6 @@ static void save_report_stage(HIBPGroupRider* groups, int groups_count, int nsta
 		return;
 	}
 
-	//fputs(get_headline_stage(head, nstages), fp);
 	char buf[256];
 	for(int i=0; i<MAX_GROUPS; i++){
 		for(int j=0; j<groups[i].nriders; j++){
@@ -150,20 +150,29 @@ static void save_report_stage(HIBPGroupRider* groups, int groups_count, int nsta
 					HIBPGroupRider *groups_t = (HIBPGroupRider*)malloc(sizeof(HIBPGroupRider)*MAX_GROUPS);
 					read_transfer_report(groups_t, k+1, 1);
 					HIBPRiderInfo* tr = get_rider_info_g(groups_t, r->number);
-					if(tr == NULL){
+					if(tr == NULL){//transfer has not completed yet.
 						fprintf(stderr, "transfer rider not found");
-						exit(1);
+					    sprintf(buf,"%s,%s,%s,%s,%s,%s,%s,%d", buf,
+					    	"-",
+					    	"-",
+					    	"-",
+					    	"-",
+					    	"-",
+					    	"-",
+					    	p->points);
 					}
+                    else{
 
-					int b = is_has_transfer_group(groups[i].group);
-					sprintf(buf,"%s,%s,%s,%s,%s,%s,%s,%d", buf,
-						b==1?tr->start_time[0]:"-",
-						b==1?tr->end_time[0]:"-",
-						b==1?(tr->qualify_r==1?"DNQ":tr->result_time[0]):"-",
-						r->start_time[k+1],
-						r->end_time[k+1],
-						r->result_time[k+1],
-						p->points);
+					    int b = is_has_transfer_group(groups[i].group);
+					    sprintf(buf,"%s,%s,%s,%s,%s,%s,%s,%d", buf,
+					    	b==1?tr->start_time[0]:"-",
+					    	b==1?tr->end_time[0]:"-",
+					    	b==1?(tr->qualify_r==1?"DNQ":tr->result_time[0]):"-",
+					    	r->start_time[k+1],
+					    	r->end_time[k+1],
+					    	r->result_time[k+1],
+					    	p->points);
+                    }
 					
 					free(groups_t);
 				}
@@ -248,9 +257,10 @@ void generate_report_stage(int stage)
 	int nstages=racing_get_stages();
 	HIBPGroupRider* groups = get_groups(); 
 
-	StageReport* reports = (StageReport*)malloc(sizeof(StageReport)*nstages);
 	int i=0;
 	char fname[64];
+
+    //生成本次stage 报表
 	if(is_has_transfer(stage))
 		read_transfer_report(groups, stage, 0); 
 
@@ -272,12 +282,14 @@ void generate_report_stage(int stage)
 	sprintf(fname, "result_stage_%d.csv", stage);
 	save_report(groups, MAX_GROUPS, fname);
 
+    //生成总成绩报表
 	for(i=0; i<MAX_GROUPS; i++){
 		for(int j=0; j<groups[i].nriders; j++){
-			groups[i].riders[j].results[0].points = 0;
+			groups[i].riders[j].results[0].points = 0;//重新计算积分
 		}
 	}
 
+	StageReport* reports = (StageReport*)malloc(sizeof(StageReport)*nstages);
 	for(i=0; i<stage; i++){
 		sprintf(fname, "result_stage_%d.csv", i+1);
 		read_report(reports[i].groups, fname); 
@@ -286,7 +298,7 @@ void generate_report_stage(int stage)
 	sprintf(fname, "result.csv");
 	calc_total_result(reports, nstages, MAX_GROUPS);
 	sort_by_points(groups, MAX_GROUPS);
-	save_report_stage(groups, MAX_GROUPS, nstages, fname);
+	save_total_report(groups, MAX_GROUPS, nstages, fname);
 
 	free(reports);
 }
