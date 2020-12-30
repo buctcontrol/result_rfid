@@ -19,5 +19,8 @@ extern void file_close();
 
 extern struct interface * cliFindClassById(int nClsId);
 
+///time format hh:mm:ss.ms
+extern void to_time_str(char* str, int sec, int msec);
+extern void to_time_sec(char* str, int* sec, int* msec);
 
 #endif /*UTILS_H*/

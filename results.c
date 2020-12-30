@@ -108,13 +108,13 @@ static int if_readlist_proc(const char *target, const char* fname, int type)
             case TYPE_START:
 	    	//多条start取最后一条
                 tmp = cliFindClassById(ife->id);
-		if(tmp!= NULL)
-		{
-                    tmp->sec = ife->sec;
-                    tmp->msec = ife->msec;
-		    free(ife);
-		}
-		else
+				if(tmp!= NULL)
+				{
+        		    tmp->sec = ife->sec;
+        		    tmp->msec = ife->msec;
+				    free(ife);
+				}
+				else
                 	list_add_tail(&ife->list, &pCur->list);
 
                 break;
@@ -127,7 +127,7 @@ static int if_readlist_proc(const char *target, const char* fname, int type)
                     pCur->end_sec = ife->end_sec;
                     pCur->end_msec = ife->end_msec;
                     pCur->end_filled = 1;   //for drop dup
-		    free(ife);
+		    		free(ife);
                 }
                 break;
 
@@ -158,22 +158,14 @@ int read_finish(const char* fname)
 
 static void calc_time(PINTERFACE pCur)
 {
-	if(pCur->end_msec < pCur->msec)
-	{
-	    	pCur->pure_sec = (pCur->end_sec - 1) - pCur->sec;
-	    	pCur->pure_msec = 1000 + pCur->end_msec - pCur->msec;
-	}
-	else
-	{
-	    	pCur->pure_sec = pCur->end_sec - pCur->sec;
-	    	pCur->pure_msec = pCur->end_msec - pCur->msec;
-	}
+    pCur->pure_sec = pCur->sec;
+    pCur->pure_msec = pCur->msec;
 }
 
 
 static void calc_speed(PINTERFACE pCur)
 {
-      	float float_time = pCur->pure_sec + pCur->pure_msec/1000;
+    float float_time = pCur->pure_sec + pCur->pure_msec/1000;
 	pCur->speed = (LENGTH * 3.6) / float_time;
 }
 
@@ -224,15 +216,34 @@ void calc_result()
 	list_for_each(pPos, &g_ife.list)
 	{
 		pCur = list_entry(pPos, struct interface, list);
-                if(pCur->end_filled)
-                {
-		    	calc_time(pCur);
-		    	calc_speed(pCur);
-                }
+        pCur->end_filled = 1;
+        if(pCur->end_filled)
+        {
+			calc_time(pCur);
+			calc_speed(pCur);
+        }
 
 		HIBPRiderInfo* rider = get_rider_info(pCur->id);
-		if(rider != NULL)
-			rider->results[0]= *pCur;
+	    //如果新的成绩比老的成绩好，则更新为新的成绩
+		if(rider != NULL){
+            printf("odl rider no=%d\n", rider->number);
+			struct interface  *pOld = &rider->results[0];
+            if(pOld->end_filled){
+                printf("odl rider msec=%d\n", pOld->msec);
+			    if(pOld->pure_sec > pCur->pure_sec){
+				    rider->results[0]= *pCur;
+			    }
+			    else if(pOld->pure_sec == pCur->pure_sec){
+				    if(pOld->pure_msec > pCur->pure_msec){
+					    rider->results[0]= *pCur;
+				    }
+			    }
+            }
+            else{
+                    printf("cur rider msec=%d\n", pOld->msec);
+				    rider->results[0]= *pCur;
+            }
+		}
 	}
 
 	sort_by_time(get_groups(), get_groups_count());

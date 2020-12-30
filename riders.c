@@ -19,6 +19,7 @@
 #include "riders.h"
 #include "utils.h"
 #include "global.h"
+#include "report.h"
 #include <string.h>
 
 
@@ -30,6 +31,7 @@ static void read_all_riders();
 void init_riders()
 {
 	read_all_riders();
+	read_report(groups, "result.csv"); 
 }
 
 

@@ -134,3 +134,43 @@ struct interface * cliFindClassById(int nClsId)
 
 	return NULL;
 }
+
+///time format hh:mm:ss.ms
+void to_time_str(char* str, int sec, int msec)
+{
+	sprintf(str, "%02d:%02d:%02d.%03d", 
+		(sec/60/60)%24, (sec/60)%60, (sec%60), msec
+	);
+}
+
+
+///time format hh:mm:ss.ms
+void to_time_sec(char* str, int* sec, int* msec)
+{
+	char**ss;
+	int count;
+	ss = strsplit(str, ".", &count);
+	if(count !=2 ){
+		*sec = -1;
+		*msec = -1;
+		return;
+	}
+
+	char *sec_str = ss[0];
+	char *msec_str = ss[1];
+	*msec = atoi(msec_str);
+	ss = strsplit(sec_str, ":", &count);
+	if(count !=3 ){
+		*sec = -1;
+		*msec = -1;
+		return;
+	}
+	
+	
+	char *h_str = ss[0];
+	char *m_str = ss[1];
+	char *s_str = ss[2];
+	*sec = atoi(h_str)*60*60 + atoi(m_str)*60 + atoi(s_str);
+}
+
+
