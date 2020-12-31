@@ -3,6 +3,7 @@
 #include "points_rule.h"
 #include "racing_info.h"
 #include "riders.h"
+#include "results.h"
 #include "utils.h"
 #include "interface.h"
 #include <stdio.h>
@@ -10,10 +11,6 @@
 #include <string.h>
 
 
-typedef struct
-{
-	HIBPGroupRider groups[MAX_GROUPS];	
-}StageReport;
 
 static int compare_rider_points(const HIBPRiderInfo* src, const HIBPRiderInfo* dst)
 {
@@ -63,6 +60,7 @@ void read_report(HIBPGroupRider* groups, const char* fname)
 		    strcmp(rider->result_time[0], "DNF")==0||
 		    strcmp(rider->result_time[0], "DNQ")==0
         ){
+		    rider->results[0].pure_sec = INVALID_TIME;
             continue;
         }
 
@@ -104,13 +102,11 @@ void save_report(HIBPGroupRider* groups, int groups_count, const char* filename)
 				groups[i].group, groupStr[groups[i].group].str, j+1, r->number, r->name, r->team);
 
 			PINTERFACE p = r->results;
-			if(p->pure_sec == 0){
-				sprintf(buf,"%s,DNS,DNS,DNS,DNS,0,0\n", buf);
+			if(p->pure_sec ==INVALID_TIME ){
+				sprintf(buf,"%s,-,-,DNS,DNS,0,0\n", buf);
 			}
 			else if(!p->end_filled){
-				sprintf(buf,"%s,%02d:%02d:%02d.%03d,DNF,DNF,DNF,0,0\n", buf, 
-					(p->sec/60/60+8)%24, (p->sec/60)%60, (p->sec%60), p->msec
-				);
+				sprintf(buf,"%s,-,-,DNF,DNF,0,0\n", buf);
 			}
 			else{ 
 
@@ -153,24 +149,3 @@ void generate_report_stage(int stage)
 }
 
 
-/*
-#include <stdio.h>
-struct interface g_ife;
-
-#include "results.h"
-
-int main()
-{
-	memset(&g_ife, 0, sizeof(g_ife));
-	INIT_LIST_HEAD(&g_ife.list);
-	read_start();
-	read_finish();
-	calc_result();
-	save_report(get_groups(), get_groups_count(), "result_stage_1.csv" );
-
-	HIBPGroupRider groups[MAX_GROUPS];
-	read_report(groups, "result_stage_1.csv");
-
-	return 0;
-}
-*/

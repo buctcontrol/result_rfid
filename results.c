@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <net/if.h>
 #include <ctype.h>
+#include "results.h"
 
 #ifndef IFNAMSIZ
 #define IFNAMSIZ 64
@@ -95,7 +96,7 @@ static int if_readlist_proc(const char *target, const char* fname, int type)
         s = get_name(name, buf);    
         ife = (struct interface *)malloc(sizeof(struct interface));
         memset(ife, 0, sizeof(struct interface));
-        ife->pure_sec  = 86399;
+        ife->pure_sec  = INVALID_TIME;
         ife->pure_msec = 999;
         get_dev_fields(s, ife, type);
         if (target && strcmp(target,name))
@@ -226,10 +227,8 @@ void calc_result()
 		HIBPRiderInfo* rider = get_rider_info(pCur->id);
 	    //如果新的成绩比老的成绩好，则更新为新的成绩
 		if(rider != NULL){
-            printf("odl rider no=%d\n", rider->number);
 			struct interface  *pOld = &rider->results[0];
             if(pOld->end_filled){
-                printf("odl rider msec=%d\n", pOld->msec);
 			    if(pOld->pure_sec > pCur->pure_sec){
 				    rider->results[0]= *pCur;
 			    }
@@ -240,7 +239,6 @@ void calc_result()
 			    }
             }
             else{
-                    printf("cur rider msec=%d\n", pOld->msec);
 				    rider->results[0]= *pCur;
             }
 		}
@@ -251,41 +249,3 @@ void calc_result()
 }
 
 
-
-
-//for test
-#if 0
-#include <stdio.h>
-
-struct interface g_ife;
-
-int main()
-{
-	memset(&g_ife, 0, sizeof(g_ife));
-	INIT_LIST_HEAD(&g_ife.list);
-	read_start("s2s.txt");
-	read_finish("s2e.txt");
-	calc_result();
-
-	HIBPGroupRider* groups=get_groups();
-	char buf[256]={0};
-	for(int i=0; i<get_groups_count(); i++){
-		for(int j=0; j<groups[i].nriders; j++){
-			HIBPRiderInfo* r= groups[i].riders+j;
-			sprintf(buf, "%s,%d,%03d,%s,%s", groupStr[r->group].str, j+1, r->number, r->name, r->team);
-				PINTERFACE p = r->results;
-				sprintf(buf,"%s,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%d", buf,
-					(p->sec/60/60+8)%24, (p->sec/60)%60, (p->sec%60), p->msec,
-					(p->end_sec/60/60+8)%24, (p->end_sec/60)%60, (p->end_sec%60), p->end_msec,
-					(p->pure_sec/60/60)%24, (p->pure_sec/60)%60, (p->pure_sec%60), p->pure_msec,
-					(p->gap_sec/60/60)%24, (p->gap_sec/60)%60, (p->gap_sec%60), p->gap_msec,
-					p->points);
-
-			printf("%s\n", buf);
-		}
-			
-	}
-	
-	return 0;
-}
-#endif

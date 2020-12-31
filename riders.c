@@ -20,6 +20,7 @@
 #include "utils.h"
 #include "global.h"
 #include "report.h"
+#include "results.h"
 #include <string.h>
 
 
@@ -157,7 +158,7 @@ static void read_all_riders()
 		riders[i].group = get_column_i(buf, 3);
 		strcpy(riders[i].name, get_column_str(buf, 1, val));
 		strcpy(riders[i].team, get_column_str(buf, 2, val));
-        	riders[i].results[0].pure_sec  = 86399;
+        	riders[i].results[0].pure_sec  = INVALID_TIME; 
         	riders[i].results[0].pure_msec = 999;
         	riders[i].results[0].sec  = 0;
         	riders[i].results[0].msec = 0;
