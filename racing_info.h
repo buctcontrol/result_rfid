@@ -2,15 +2,23 @@
 //
 //
 
-extern void load_racing_info();
-extern char* racing_get_mode();
+typedef void (*ceate_result_view_f)(void* racing);
+typedef void (*load_info_f)(void* racing);
+typedef void (*process_racing_f)(void* racing)
 
-//return > 0 yes ==0 no
-extern int is_has_transfer(int stage);
-extern int is_has_transfer_group(int group);
-extern char* get_transer_shut_time(int group, int stage);
+typedef struct
+{
+	///operations
+	load_info_f load_info;
+	ceate_result_view_f create_result_view;
+	process_racing_f process;
 
-//extern int racing_get_curstage();
-extern int racing_get_stages();
+	char* mode;
+}HIBPRacing;
 
-extern int racing_get_curround();
+extern HIBPRacing* create_racing_info();
+extern void release_racing_info(void* racing);
+extern void load_racing_info(HIBPRacing* racing);
+extern void process_racing(HIBPRacing* racing);
+extern char* get_racing_mode(HIBPRacing* racing);
+

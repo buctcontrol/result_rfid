@@ -6,38 +6,108 @@
 #include <stdio.h>
 #include "global.h"
 #include "riders.h"
+#include "results.h"
+#include "report.h"
 
 #define MAX_STAGES 10
 
+char* get_racing_mode(void* racing)
+{
+	HIBPRacing* rm = (HIBPRacing*)racing;
+	return rm->mode;
+}
+
+HIBPRacing* create_racing_info()
+{
+	char mode = conf_get_field_str("Racing");
+	if(strcmp(mode, "stage") == 0){
+    	return (HIBPRacing*)alloc_stage_racing();
+	}
+
+	return NULL;
+}
+
+void release_racing_info(void* racing)
+{
+    free(racing);
+}
+
+void load_racing_info(HIBPRacing* racing)
+{
+	racing->load_info(racing);
+	racing->create_result_view(racing);
+}
+
+void process_racing(HIBPRacing* racing)
+{
+	racing->process(racing);
+}
+
+
+
+////////////////////////////////////////////////////////////////////////
+//stage mode
 typedef struct
 {
-	char mode[8];
-	union{
-		struct {
-			int total_stages; //max 10 stages
-			char transfer_shut[MAX_GROUPS][MAX_STAGES][16];// group-stage transfer shut time
-		}stage;
+	///operations
+	load_info_f load_info;
+	ceate_result_view_f create_result_view;
+	process_racing_f process;
 
-		struct {
-			int cur_round;
-		}round;
-	};
+	const char* mode="stage";
+	int nstages; //number of stages
+	struct{
+		struct{
+			int transfer_shut;//transfer shut time in seconds
+		}shut[MAX_GROUPS];
+	}stags[MAX_STAGES];
 
-}RacingInfo;
+	HIBPStageResultView* result_view;
 
-static RacingInfo info;
+}HIBPRacing_Stage;
 
-
-char* racing_get_mode()
+HIBPRacing_Stage* alloc_stage_racing()
 {
-	return info.mode;
+	HIBPRacing_Stage* r = (HIBPRacing_Stage*)malloc(sizeof(HIBPRacing_Stage));
+	r->laod_info = load_stage_info;
+	r->create_result_view = create_stage_results_view;
+	r->process = stage_process_racing;
+}
+
+void load_transfer_shut(HIBPRacing_Stage* r, char* file);
+void load_stage_racing_info(void* racing)
+{
+	HIBPRacing_Stage* r = (HIBPRacing_Stage*)racing;	
+	r->nstages = conf_get_field_int("Stage", "stage");
+	load_transfer_shut(r, conf_get_field_str("Stage", "transfer_shut"));
+}
+
+void create_stage_result_view(void* racing)
+{
+	HIBPRacing_Stage* r = (HIBPRacing_Stage*)racing;	
+	r->result_view = alloc_stage_result_view(r->nstages);
+}
+
+//int is_has_transfer(int stage);
+//void process_transfer(int i);
+//void process_transfer(int i);
+void stage_process_racing(void* racing)
+{
+	HIBPRacing_Stage* r = (HIBPRacing_Stage*)racing;	
+	for(int i=0; i<r->nstages; i++){
+		if(is_has_transfer(i) ){
+			process_transfer(r, i);
+		}
+		process_stage(r, i);
+	}
+}
+
+void load_transfer_shut(HIBPRacing_Stage* r, char* file)
+{
 }
 
 int is_has_transfer_group(int group)
 {
-	if(group == EBIKE)
-		return 0;
-
 	return 1;
 }
 
@@ -52,7 +122,7 @@ int is_has_transfer(int stage)
 	return fp!=NULL?1:0;
 }
 
-char* get_transer_shut_time(int group, int stage)
+int get_transer_shut_time(void* racing, int group, int stage)
 {
 	if(group >= MAX_GROUPS){
 		fprintf(stderr, "get_transfer_shut_time: group out idx");
@@ -64,27 +134,72 @@ char* get_transer_shut_time(int group, int stage)
 		exit(1);
 	}
 
-	return info.stage.transfer_shut[group][stage-1];
+	HIBPRacing_Stage* r = (HIBPRacing_Stage*)racing;	
+	return r->stages[stage].transfer_shut[group].shut;
 }
 
-int racing_get_curstage()
+void process_transfer(HIBPRacing_Stage* racing, int i)
 {
-	return 0;
+	char fname_start[64];
+	char fname_finish[64];
+	char report_fname[64];
+
+	sprintf(fname_start, "t%ds.txt", i+1);
+	sprintf(fname_finish, "t%de.txt", i+1);
+	sprintf(report_fname, "result_transfer_%d.csv", i+1);
+	process_result(racing, fname_start, fname_finish, report_name);
 }
 
-int racing_get_stages()
+void process_stage(HIBPRacing_Stage* racing, int i)
 {
-	return info.stage.total_stages;
+	char fname_start[64];
+	char fname_finish[64];
+	char report_fname[64];
+	sprintf(fname_start, "s%ds.txt", i+1);
+	sprintf(fname_finish, "s%de.txt", i+1);
+	sprintf(report_fname, "result_stage_%d.csv", i+1);
+	process_result(racing, fname_start, fname_finish, report_name);
 }
 
-int racing_get_curround()
+
+void process_result(HIBPRacing_Stage* racing,
+	char fname_start[64],
+	char fname_finish[64],
+	char report_fname[64]
+)
 {
-	return info.round.cur_round;
+	HIBPTime stime;
+	while(true){
+		int r = timeing_read(fname_start, &stime);
+		if( r == 0){
+			break;
+		}
+		on_recv_result(racing->results_view, &stime);
+	}
+
+	while(true){
+		int r = timeing_read(fname_finish, &stime);
+		if( r == 0){
+			break;
+		}
+		racing->results_view->on_recv_result(racing->results_view, &stime);
+	}
+
+	sprintf(report_fname, "result_transfer_%d.csv", i+1);
+	report_update(racing->riders_view, racing->result_view, report_fname);
 }
 
-void load_racing_info()
-{
-	strcpy(info.mode, "stage");
-	info.stage.total_stages = 2;
-	strcpy(info.stage.transfer_shut[CAT][0], "01:00:00");
-}
+
+
+////////////////////////////////////////////////////////////////////////
+//round mode
+typedef struct{
+	///operations
+	load_info_f load_info;
+	ceate_result_view_f create_result_view;
+	process_racing_f process;
+
+	const char* mode="stage";
+	int nrounds;
+	int cur_round;
+}HIBPRacing_Round;

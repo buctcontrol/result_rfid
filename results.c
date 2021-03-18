@@ -1,180 +1,29 @@
-//
+//results.c
 //
 
 #include "global.h"
-#include "interface.h"
-#include "riders.h"
 #include "utils.h"
+#include "results.h"
+#include "timeing.h"
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
-#include <net/if.h>
 #include <ctype.h>
 
-#ifndef IFNAMSIZ
-#define IFNAMSIZ 64
-#endif
-
-static int get_dev_fields(char *bp, struct interface *ife, int type)
+static void calc_time(HIBPTime* time)
 {
-    if(type == TYPE_START)
-    {
-        sscanf(bp,
-                "%u %u %u",
-                &ife->id,
-                &ife->sec,
-                &ife->msec);
-    }
-    else if(type == TYPE_END)
-    {
-        sscanf(bp,
-                "%u %u %u",
-                &ife->end_id,
-                &ife->end_sec,
-                &ife->end_msec);
-    }
-    else
-    {
-        printf("wrong type: %d\n", type);
-        return -1;
-    }
-    return 0;
+	time->result_time = time->end_time - time->start_time;
 }
 
-static char *get_name(char *name, char *p)
+double to_seconds(uint64_t ms)
 {
-    while (isspace(*p))
-	p++;
-    while (*p) {
-	if (isspace(*p))
-	    break;
-	if (*p == ':') {	/* could be an alias */
-		char *dot = p++;
- 		while (*p && isdigit(*p)) p++;
-		if (*p == ':') {
-			/* Yes it is, backup and copy it. */
-			p = dot;
-			*name++ = *p++;
-			while (*p && isdigit(*p)) {
-				*name++ = *p++;
-			}
-		} else {
-			/* No, it isn't */
-			p = dot;
-	    }
-	    p++;
-	    break;
-	}
-	*name++ = *p++;
-    }
-    *name++ = '\0';
-    return p;
+	return (double)ms/1000;
 }
 
-static int if_readlist_proc(const char *target, const char* fname, int type)
+static double calc_speed(double length, uint64_t ms)
 {
-    FILE *fh;
-    char buf[512];
-    struct interface *ife, *tmp;
-    struct interface *pCur = &g_ife;
-    int err;
-    int count = 0;
-
-    fh = fopen(fname, "r");
-    if (!fh) {
-	fprintf(stderr, "Warning: cannot open %d (%s). Limited output.\n",
-	type, strerror(errno)); 
-	return -2;
-    }	
-
-    err = 0;
-    while(fgets(buf, sizeof buf, fh)){
-        count++;
-        char *s, name[IFNAMSIZ];
-        s = get_name(name, buf);    
-        ife = (struct interface *)malloc(sizeof(struct interface));
-        memset(ife, 0, sizeof(struct interface));
-        ife->pure_sec  = 86399;
-        ife->pure_msec = 999;
-        get_dev_fields(s, ife, type);
-        if (target && strcmp(target,name))
-        {
-            printf("strcmp err, break\n");
-            break;
-        }
-        switch(type)
-        {
-            case TYPE_START:
-	    	//多条start取最后一条
-                tmp = cliFindClassById(ife->id);
-		if(tmp!= NULL)
-		{
-                    tmp->sec = ife->sec;
-                    tmp->msec = ife->msec;
-		    free(ife);
-		}
-		else
-                	list_add_tail(&ife->list, &pCur->list);
-
-                break;
-
-            case TYPE_END:
-	    	//多条end取第一条
-                pCur = cliFindClassById(ife->end_id);
-                if((pCur != NULL) && (!pCur->end_filled))
-                {
-                    pCur->end_sec = ife->end_sec;
-                    pCur->end_msec = ife->end_msec;
-                    pCur->end_filled = 1;   //for drop dup
-		    free(ife);
-                }
-                break;
-
-            default:
-                printf("wong type: %d\n", type);
-                break;
-        }
-    }
-
-    if (ferror(fh)) {
-        //perror(type);
-        err = -1;
-    }
-
-    fclose(fh);
-    return err;
-}
-
-int read_start(const char* fname)
-{
-	return if_readlist_proc("HIBP", fname, TYPE_START);
-}
-
-int read_finish(const char* fname)
-{
-	return if_readlist_proc("HIBP", fname, TYPE_END);
-}
-
-static void calc_time(PINTERFACE pCur)
-{
-	if(pCur->end_msec < pCur->msec)
-	{
-	    	pCur->pure_sec = (pCur->end_sec - 1) - pCur->sec;
-	    	pCur->pure_msec = 1000 + pCur->end_msec - pCur->msec;
-	}
-	else
-	{
-	    	pCur->pure_sec = pCur->end_sec - pCur->sec;
-	    	pCur->pure_msec = pCur->end_msec - pCur->msec;
-	}
-}
-
-
-static void calc_speed(PINTERFACE pCur)
-{
-      	float float_time = pCur->pure_sec + pCur->pure_msec/1000;
-	pCur->speed = (LENGTH * 3.6) / float_time;
+	return (length * 3.6) / to_seconds(ms);
 }
 
 static int compare_rider_time(const HIBPRiderInfo* src, const HIBPRiderInfo* dst)
@@ -216,65 +65,90 @@ static void calc_gap_time(HIBPGroupRider* groups, int groups_count)
 	}
 }
 
-void calc_result()
+void stage_on_recv_result(void* view, HIBPTime* t)
 {
-	struct interface  *pCur = NULL;
-	struct list_head* pPos = NULL;
-
-	list_for_each(pPos, &g_ife.list)
-	{
-		pCur = list_entry(pPos, struct interface, list);
-                if(pCur->end_filled)
-                {
-		    	calc_time(pCur);
-		    	calc_speed(pCur);
-                }
-
-		HIBPRiderInfo* rider = get_rider_info(pCur->id);
-		if(rider != NULL)
-			rider->results[0]= *pCur;
+	HIBPStageReusltView* rview =(HIBPStageReusltView*)view;
+	HIBPStageReuslt* item = stage_find_result(rview, t->stage, t->rider_no);
+	if(item == NULL){
+		item = alloc_result();	
+		item->rider_no = t->rider_no;
+		add_result(view, t->stage, t->rider_no, item);
 	}
 
-	sort_by_time(get_groups(), get_groups_count());
-	calc_gap_time(get_groups(), get_groups_count());
+	item->update_time(item, t);
+
+	//sort_by_time(get_groups(), get_groups_count());
+	//calc_gap_time(get_groups(), get_groups_count());
 }
 
 
 
-
-//for test
-#if 0
-#include <stdio.h>
-
-struct interface g_ife;
-
-int main()
+void free_result(void* result)
 {
-	memset(&g_ife, 0, sizeof(g_ife));
-	INIT_LIST_HEAD(&g_ife.list);
-	read_start("s2s.txt");
-	read_finish("s2e.txt");
-	calc_result();
+	free(result);
+}
 
-	HIBPGroupRider* groups=get_groups();
-	char buf[256]={0};
-	for(int i=0; i<get_groups_count(); i++){
-		for(int j=0; j<groups[i].nriders; j++){
-			HIBPRiderInfo* r= groups[i].riders+j;
-			sprintf(buf, "%s,%d,%03d,%s,%s", groupStr[r->group].str, j+1, r->number, r->name, r->team);
-				PINTERFACE p = r->results;
-				sprintf(buf,"%s,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%02d:%02d:%02d.%03d,%d", buf,
-					(p->sec/60/60+8)%24, (p->sec/60)%60, (p->sec%60), p->msec,
-					(p->end_sec/60/60+8)%24, (p->end_sec/60)%60, (p->end_sec%60), p->end_msec,
-					(p->pure_sec/60/60)%24, (p->pure_sec/60)%60, (p->pure_sec%60), p->pure_msec,
-					(p->gap_sec/60/60)%24, (p->gap_sec/60)%60, (p->gap_sec%60), p->gap_msec,
-					p->points);
-
-			printf("%s\n", buf);
+////////////////////////////////////////////////////
+//stage result operations
+void stage_update_time(void* result, HIBPTime* t)
+{
+	HIBPStageReuslt* r = (HIBPStageReuslt*)result;
+	r->rider_no = t->rider_no;
+	r->stage = t->stage;
+	if(t->is_start){
+		if(t->is_transfer){
+			r->transfer_result->start_time = t->time;
 		}
-			
+		else{
+			r->stage_result->start_time = t->time;
+		}
 	}
-	
-	return 0;
+	else{
+		if(t->is_transfer){
+			r->transfer_result->end_time = t->time;
+		}
+		else{
+			r->stage_result->end_time = t->time;
+		}
+	}
+
+	if(r->transfer_result->start_time > 0 && t->transfer_result->end_time > 0){
+		r->transfer_result->result_time = r->transfer_result->end_time - r->transfer_result->start_time;
+	}
+
+	if(r->stage_result->start_time > 0 && r->stage_result->end_time > 0){
+		r->stage_result->result_time = r->stage_result->end_time - r->stage_result->start_time;
+	}
+
 }
-#endif
+
+void init_result(HIBPResult* r)
+{
+	r->start_time = 0;
+	r->end_time = 0;
+	r->reuslt_time = 0;
+}
+
+void init_stage_result(HIBPStageReuslt* r)
+{
+	r->rider_no = 0;
+	r->stage = -1;
+	init_result(&r->transer_result);	
+	init_result(&r->stage_result);	
+	r->update_time = stage_update_time;
+}
+
+HIBPReusltView* alloc_stage_result_view(int nrows, int ncols)
+{
+	HIBPReusltView* view = (HIBPReusltView*)malloc(sizeof(HIBPReusltView));
+	view->nrows = nrows;
+	view->rows = (HIBPReusltRow*)malloc(sizeof(HIBPReusltRow) * nrows);
+	for(int i=0; i<rows; i++){
+		HIBPReusltRow* row = view->rows+i;
+		row->ncols = ncols;
+		row->cols = (HIBPStageReuslt*)malloc(sizeof(HIBPStageReuslt) * ncols);
+		for(int j=0; j<ncols; j++){
+			init_stage_result( (HIBPStageReuslt*)(row->cols+i));
+		}
+	}
+}

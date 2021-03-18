@@ -78,10 +78,10 @@ enum
     MAN         = 4,
     OPEN        = 5,
     ELITE       = 6,
-    MASTER      = 7,
+    MASTERA     = 7,
     EBIKE       = 8,
-    TASTE       = 9,
-    CAT         = 10,
+    FREY        = 9,
+    MASTERB     = 10,
     MAX_GROUPS 	= 11
 };
 

@@ -26,4 +26,5 @@ typedef struct interface {
 
 extern struct interface g_ife;
 
+
 #endif /*INTERFACE_H*/
