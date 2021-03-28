@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-static void calc_time(HIBPTime* time)
+static void calc_time(HIBPResult* time)
 {
 	time->result_time = time->end_time - time->start_time;
 }
@@ -26,53 +26,91 @@ static double calc_speed(double length, uint64_t ms)
 	return (length * 3.6) / to_seconds(ms);
 }
 
-static int compare_rider_time(const HIBPRiderInfo* src, const HIBPRiderInfo* dst)
+static int compare_time(const HIBPStageResult* src, const HIBPStageResult* dst)
 {
-	if(   (dst->results[0].pure_sec < src->results[0].pure_sec) 
-	   || ((dst->results[0].pure_sec == src->results[0].pure_sec) && (dst->results[0].pure_msec < src->results[0].pure_msec))
-	 )
-	 {
+	if( src->stage_result.result_time < dst->stage_result.result_time ){
 	 	return 1;	
 	 }
 
 	 return 0;
 }
 
-static void sort_by_time(HIBPGroupRider* groups, int groups_count)
+static void sort_by_time(HIBPStageResultView* view)
 {
-	sort_riders(groups, groups_count, compare_rider_time);
+	//sort_riders(groups, groups_count, compare_rider_time);
 }
 
-static void calc_gap_time(HIBPGroupRider* groups, int groups_count)
+static void calc_gap_time(HIBPStageResultView* view)
 {
-	int i;
-	for(i=0; i<groups_count; i++){
-		for(int j=0; j<groups[i].nriders; j++){
-			HIBPRiderInfo* rider = &(groups[i].riders[j]);
-			PINTERFACE pMax = groups[i].riders[0].results;
-			PINTERFACE pCur = rider->results;
-			if(pCur->pure_msec < pMax->pure_msec)
-			{
-				pCur->gap_sec = (pCur->pure_sec - 1) - pMax->pure_sec;
-				pCur->gap_msec = 1000 + pCur->pure_msec - pMax->pure_msec;
-			}
-			else
-			{
-				pCur->gap_sec = pCur->pure_sec - pMax->pure_sec;
-				pCur->gap_msec = pCur->pure_msec - pMax->pure_msec;
-			}
-		}
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+HIBPResultTable* alloc_result_table(int nrows, int ncols)
+{
+	HIBPResultTable* view = (HIBPResultTable*)malloc(sizeof(HIBPResultTable));
+	view->nrows = nrows;
+	view->rows = (HIBPResultRow**)malloc(sizeof(HIBPResultRow)*nrows);
+	for(int i=0; i<nrows; i++){
+		HIBPResultRow* row = (HIBPResultRow*)malloc(sizeof(HIBPResultRow));
+		view->rows[i] = row;
+		row->cols = (void**)malloc(sizeof(long)*ncols);
+		row->ncols = ncols;
 	}
+
+	return view;
 }
 
-void stage_on_recv_result(void* view, HIBPTime* t)
+void free_result_table(HIBPResultTable* view)
 {
-	HIBPStageReusltView* rview =(HIBPStageReusltView*)view;
-	HIBPStageReuslt* item = stage_find_result(rview, t->stage, t->rider_no);
+}
+
+HIBPResultRow* table_get_row(HIBPResultTable* view, int row)
+{
+	if(row < 0 || row > view->nrows)
+		return 0;
+
+	return view->rows[row];
+}
+
+void table_set_item(HIBPResultTable* view, int row, int col, void* value)
+{
+	if(row < 0 || row > view->nrows)
+		return ;
+
+	HIBPResultRow* prow = view->rows[row];
+	if(col < 0 || col > prow->ncols)
+		return ;
+
+	prow->cols[col] = value;
+}
+
+void* table_get_item(HIBPResultTable* view, int row, int col)
+{
+	if(row < 0 || row > view->nrows)
+		return 0;
+
+	HIBPResultRow* prow = view->rows[row];
+	if(col < 0 || col > prow->ncols)
+		return 0;
+
+	return prow->cols[col];
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+HIBPStageResult* stage_find_result(HIBPStageResultView* view, int rider_no, int stage);
+void init_stage_result(HIBPStageResult* r);
+void stage_add_result(HIBPStageResultView* view, int rider_no, int stage, HIBPStageResult* item);
+void stage_on_recv_time(void* view, HIBPTime* t)
+{
+	HIBPStageResultView* rview =(HIBPStageResultView*)view;
+	HIBPStageResult* item = stage_find_result(rview, t->stage, t->rider_no);
 	if(item == NULL){
-		item = alloc_result();	
-		item->rider_no = t->rider_no;
-		add_result(view, t->stage, t->rider_no, item);
+		return;
 	}
 
 	item->update_time(item, t);
@@ -92,32 +130,30 @@ void free_result(void* result)
 //stage result operations
 void stage_update_time(void* result, HIBPTime* t)
 {
-	HIBPStageReuslt* r = (HIBPStageReuslt*)result;
-	r->rider_no = t->rider_no;
-	r->stage = t->stage;
+	HIBPStageResult* r = (HIBPStageResult*)result;
 	if(t->is_start){
 		if(t->is_transfer){
-			r->transfer_result->start_time = t->time;
+			r->transfer_result.start_time = t->time;
 		}
 		else{
-			r->stage_result->start_time = t->time;
+			r->stage_result.start_time = t->time;
 		}
 	}
 	else{
 		if(t->is_transfer){
-			r->transfer_result->end_time = t->time;
+			r->transfer_result.end_time = t->time;
 		}
 		else{
-			r->stage_result->end_time = t->time;
+			r->stage_result.end_time = t->time;
 		}
 	}
 
-	if(r->transfer_result->start_time > 0 && t->transfer_result->end_time > 0){
-		r->transfer_result->result_time = r->transfer_result->end_time - r->transfer_result->start_time;
+	if(r->transfer_result.start_time > 0 && r->transfer_result.end_time > 0){
+		r->transfer_result.result_time = r->transfer_result.end_time - r->transfer_result.start_time;
 	}
 
-	if(r->stage_result->start_time > 0 && r->stage_result->end_time > 0){
-		r->stage_result->result_time = r->stage_result->end_time - r->stage_result->start_time;
+	if(r->stage_result.start_time > 0 && r->stage_result.end_time > 0){
+		r->stage_result.result_time = r->stage_result.end_time - r->stage_result.start_time;
 	}
 
 }
@@ -126,29 +162,50 @@ void init_result(HIBPResult* r)
 {
 	r->start_time = 0;
 	r->end_time = 0;
-	r->reuslt_time = 0;
+	r->result_time = 0;
 }
 
-void init_stage_result(HIBPStageReuslt* r)
+void init_stage_result(HIBPStageResult* r)
 {
-	r->rider_no = 0;
-	r->stage = -1;
-	init_result(&r->transer_result);	
+	init_result(&r->transfer_result);	
 	init_result(&r->stage_result);	
 	r->update_time = stage_update_time;
 }
 
-HIBPReusltView* alloc_stage_result_view(int nrows, int ncols)
+void* alloc_stage_result_view(int nrows, int ncols)
 {
-	HIBPReusltView* view = (HIBPReusltView*)malloc(sizeof(HIBPReusltView));
+	HIBPResultTable* table = alloc_result_table(nrows, ncols);
+	HIBPStageResultView* view = (HIBPStageResultView*)malloc(sizeof(HIBPStageResultView));
+	view->on_recv_time = stage_on_recv_time;
 	view->nrows = nrows;
-	view->rows = (HIBPReusltRow*)malloc(sizeof(HIBPReusltRow) * nrows);
-	for(int i=0; i<rows; i++){
-		HIBPReusltRow* row = view->rows+i;
-		row->ncols = ncols;
-		row->cols = (HIBPStageReuslt*)malloc(sizeof(HIBPStageReuslt) * ncols);
+	view->results = (Result*)malloc(sizeof(Result)); 
+	view->table = table;
+	for(int i=0; i<nrows; i++){
+		HIBPResultRow* row = table_get_row(table, i);
 		for(int j=0; j<ncols; j++){
-			init_stage_result( (HIBPStageReuslt*)(row->cols+i));
+			HIBPStageResult* item = (HIBPStageResult*)malloc(sizeof(HIBPStageResult));
+			init_stage_result(item);
+			row->cols[j] = item; 
+		}
+		Result r = {-1, row};
+		view->results[i] = r; 
+	}
+	return view;
+}
+
+HIBPStageResult* stage_find_result(HIBPStageResultView* view, int rider_no, int stage)
+{
+	HIBPStageResult* item = NULL; 
+	for(int i=0; i<view->nrows; i++){
+		if(view->results[i].rider_no == -1 || view->results[i].rider_no == rider_no){
+			Result* r = view->results+i;
+			if(stage>=0 && stage < r->row->ncols){
+				item = (HIBPStageResult*)r->row->cols[stage];	
+				break;
+			}
 		}
 	}
+
+	return item;
 }
+

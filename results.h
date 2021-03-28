@@ -4,6 +4,7 @@
 #define RESULTS_H
 
 #include "timeing.h"
+#include <stdint.h>
 
 
 typedef struct 
@@ -14,7 +15,30 @@ typedef struct
 }HIBPResult;
 
 typedef void (*update_time_f)(void* result, HIBPTime* t);
+typedef void (*on_recv_time_f)(void* result_view, HIBPTime* t);
 void free_result(void* result);
+
+
+
+//////////////////////////////////////////////////////////////
+typedef struct
+{
+	void** cols;
+	int ncols;
+}HIBPResultRow;
+
+typedef struct
+{
+	HIBPResultRow** rows;
+	int nrows;
+}HIBPResultTable;
+
+extern HIBPResultTable* alloc_result_table(int nrows, int ncols);
+extern HIBPResultRow* table_get_row(HIBPResultTable* view, int row);
+extern void table_set_item(HIBPResultTable* view, int row, int col, void* value);
+extern void* table_get_item(HIBPResultTable* view, int row, int col);
+
+
 
 //////////////////////////////////////////////////////////////
 typedef struct 
@@ -22,29 +46,28 @@ typedef struct
 	//operations
 	update_time_f update_time;
 
-    int rider_no;
-	int stage;//stage No.
     HIBPResult transfer_result;
-    HIBPResult state_result;
+    HIBPResult stage_result;
+	int score;
 
-}HIBPStageReuslt;
+}HIBPStageResult;
 
-typedef sturct
-{
-	void* results;
-	int rider_no;
-	int ncloumns;
-}HIBPResultRow;
+typedef	struct {
+		int rider_no;
+		HIBPResultRow* row;
+}Result;
 
 typedef struct
 {
-	HIBPResultRow* results;
+	//operations
+	on_recv_time_f on_recv_time;
+
+	Result* results;	
 	int nrows;
-}HIBPReusltView;
 
-HIBPReusltView* alloc_stage_result_view(int nstages);
+	HIBPResultTable *table;
+}HIBPStageResultView;
 
-
-extern void on_recv_time(HIBPStageReusltView* view, HIBPTime* t);
+extern void* alloc_stage_result_view(int nrows, int ncols);
 
 #endif /*RESULTS_H*/
