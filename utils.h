@@ -17,7 +17,7 @@ extern void file_close();
 
 
 
-extern struct interface * cliFindClassById(int nClsId);
+//extern struct interface * cliFindClassById(int nClsId);
 
 
 #endif /*UTILS_H*/

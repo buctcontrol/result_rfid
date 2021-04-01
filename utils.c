@@ -118,7 +118,7 @@ void file_close()
 }
 
 
-
+/*
 
 struct interface * cliFindClassById(int nClsId)
 {
@@ -134,3 +134,4 @@ struct interface * cliFindClassById(int nClsId)
 
 	return NULL;
 }
+*/

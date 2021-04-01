@@ -49,7 +49,7 @@ typedef struct
     HIBPResult transfer_result;
     HIBPResult stage_result;
 	int score;
-
+	int qualify;//qualify results, 0-normal, 1-dnq, 2-dns, 3->dnf
 }HIBPStageResult;
 
 typedef	struct {

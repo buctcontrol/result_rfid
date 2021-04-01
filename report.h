@@ -8,41 +8,25 @@
 //////////////////////////////////////////////////////////////
 typedef struct 
 {
-    int rider_no;
-    HIBPStageReuslt* results;
-    int nresults;
-    //ADDITIONAL_T add;
+    HIBPRiderInfo* rider;
+    Reuslt* result;
+	int rank;
+	int score;
+    //Additional* add;
 }HIBPReportItem;
 
-HIBPReportItem* alloc_result();
-void free_result(HIBPReportItem* result);
-
 
 //////////////////////////////////////////////////////////////
 typedef struct 
 {
-    int group_no;
     HIBPReportItem* items;
     int nitems;
-}HIBPReport;
-
-HIBPReport* alloc_result();
-void free_result(HIBPReport* result);
-
-
-//////////////////////////////////////////////////////////////
-typedef struct 
-{
-    HIBPReport* reports;
-    int nreports;
+	int groups[10];
+	int ngroups;
 }HIBPReportView;
 
-HIBPReportView* create_report_view(int n);
-void load_report_view(HIBPReportView* view);
-void save_report_view(HIBPReportView* view);
-HIBPReport* get_report(int group_no);
+extern HIBPReportView* create_report_view(int nriders);
 
-extern void generate_report_stage(int stage); 
-extern void save_report(HIBPGroupRider* groups, int groups_count, const char* filename);
+extern void update_report(HIBPRacing* racing);
 
 #endif /*REPORT_H*/

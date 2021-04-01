@@ -28,38 +28,36 @@ extern void init_riders();
 extern int get_total_groups();
 extern int get_total_riders();
 
-typedef struct
+typedef struct _rider
 {
+	struct list_head list;
     unsigned int    number;
     char            name[64];
     char            team[128];
     int 	    	group;
-    char qualify_r;//qualify results, 0-normal, 1-dnq, 2-dns, 3->dnf
+    char            group_name[128];
 }HIBPRiderInfo;
 
-typedef struct
-{
-  HIBPRiderInfo* riders;
-  int nriders;
-}HIBPRiderList;
-
 ///get a rider by rider's number
-static HIBPRiderInfo* get_rider(HIBPRiderList* list, int No);
-static int get_total_riders(HIBPRiderList* list);
-static void add_rider(HIBPRiderList* list, HIBPRiderInfo* r);
+static HIBPRiderInfo* get_rider(HIBPRiderInfo* head, int No);
+static void add_rider(HIBPRiderInfo* head, HIBPRiderInfo* r);
 
 
-typedef struct
+typedef struct 
 {
+	struct list_head list;
 	int group_no;
-	HIBPRiderList riders;
+  	HIBPRiderInfo riders;
+  	int nriders;
 }HIBPGroup;
 
 typedef struct
 {
-    HIBPGroup* groups;
+    HIBPGroup groups;
     int ngroups;
 }HIBPGroupList;
+
+extern HIBPGroupLis* rider_load_all();
 
 ///get a group by group's number
 static HIBPGROUP* get_group(HIBPGroupList* groups, int No);

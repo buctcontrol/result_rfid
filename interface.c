@@ -19,7 +19,7 @@ int main(void)
     printf("process [%s] racing mode.\n", mode);
     process_racing(racing);
     printf("finished process racing.\n");
-	release_racing_info(racing);
+	delete_racing_info(racing);
 
 	return 0;
 }

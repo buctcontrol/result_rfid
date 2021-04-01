@@ -27,7 +27,7 @@ HIBPRacing* create_racing_info()
 	return NULL;
 }
 
-void release_racing_info(void* racing)
+void delete_racing_info(void* racing)
 {
     free(racing);
 }
@@ -54,6 +54,9 @@ typedef struct
 	ceate_result_view_f create_result_view;
 	process_racing_f process;
 
+	HIBPGroupList* groups;
+	HIBPStageResultView* result_view;
+
 	const char* mode="stage";
 	int nstages; //number of stages
 	struct{
@@ -62,14 +65,12 @@ typedef struct
 		}shut[MAX_GROUPS];
 	}stags[MAX_STAGES];
 
-	HIBPStageResultView* result_view;
-
 }HIBPRacing_Stage;
 
 HIBPRacing_Stage* alloc_stage_racing()
 {
 	HIBPRacing_Stage* r = (HIBPRacing_Stage*)malloc(sizeof(HIBPRacing_Stage));
-	r->laod_info = load_stage_info;
+	r->laod_info = load_stage_racing_info;
 	r->create_result_view = create_stage_results_view;
 	r->process = stage_process_racing;
 }
@@ -80,6 +81,7 @@ void load_stage_racing_info(void* racing)
 	HIBPRacing_Stage* r = (HIBPRacing_Stage*)racing;	
 	r->nstages = conf_get_field_int("Stage", "stage");
 	load_transfer_shut(r, conf_get_field_str("Stage", "transfer_shut"));
+	groups = rider_load_all();
 }
 
 void create_stage_result_view(void* racing)
@@ -174,7 +176,7 @@ void process_result(HIBPRacing_Stage* racing,
 		if( r == 0){
 			break;
 		}
-		on_recv_result(racing->results_view, &stime);
+		racing->results_view->on_recv_result(racing->results_view, &stime);
 	}
 
 	while(true){
@@ -186,7 +188,7 @@ void process_result(HIBPRacing_Stage* racing,
 	}
 
 	sprintf(report_fname, "result_transfer_%d.csv", i+1);
-	report_update(racing->riders_view, racing->result_view, report_fname);
+	report_update(racing->groups, racing->result_view, report_fname);
 }
 
 

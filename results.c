@@ -209,3 +209,12 @@ HIBPStageResult* stage_find_result(HIBPStageResultView* view, int rider_no, int 
 	return item;
 }
 
+static const char* fname = "stages_result.csv";	
+HIBPStageResult* stage_save_result(HIBPStageResultView* view)
+{
+}
+
+HIBPStageResult* stage_load_result(HIBPStageResultView* view)
+{
+	
+}
