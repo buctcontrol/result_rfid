@@ -1,10 +1,11 @@
+#include "riders.h"
 #include "utils.h"
 #include "global.h"
 #include <string.h>
 #include "list.h"
 
 
-static void read_all_riders(HIBPGroupList* groups )
+void read_all_riders(HIBPGroupList* groups );
 HIBPGroupList* rider_load_all()
 {
 	HIBPGroupList* groups = (HIBPGroupList*)malloc(sizeof(HIBPGroupList));
@@ -12,14 +13,19 @@ HIBPGroupList* rider_load_all()
 	read_all_riders(groups);
 }
 
-static HIBPGROUP* get_group(HIBPGroupList* groups, int No)
+int get_groups_count(HIBPGroupList* groups)
 {
-	HIBPGROUP* group = NULL;
+	return groups->ngroups;
+}
+
+HIBPGroup* get_group(HIBPGroupList* groups, int No)
+{
+	HIBPGroup* group = NULL;
 	struct list_head* pos = NULL;
 
 	list_for_each(pos, &groups->groups.list)
 	{
-		group = list_entry(pos, HIBPGROUP, list);
+		group = list_entry(pos, HIBPGroup, list);
 		if(group->group_no = No)
 			return group;
 	}
@@ -27,19 +33,19 @@ static HIBPGROUP* get_group(HIBPGroupList* groups, int No)
 	return NULL;
 }
 
-static HIBPGROUP* add_group(HIBPGroupList* groups, HIBPGroup* group)
+void add_group(HIBPGroupList* groups, HIBPGroup* group)
 {
 	list_add_tail(&group->list, &groups->groups.list);
 	groups->ngroups++;
 }
 
-static HIBPGROUP* add_rider(HIBPGroup* group, HIBPRiderInfo* r)
+void add_rider(HIBPGroup* group, HIBPRiderInfo* r)
 {
-	list_add_tail(&r->list, &group.list);
+	list_add_tail(&r->list, &group->riders.list);
 	group->nriders++;
 }
 
-static void read_all_riders(HIBPGroupList* groups )
+void read_all_riders(HIBPGroupList* groups )
 {
 	char buf[128];
 	int i=0;
@@ -54,11 +60,12 @@ static void read_all_riders(HIBPGroupList* groups )
 		rider->group = get_column_i(buf, 3);
 		strcpy(rider->name, get_column_str(buf, 1, val));
 		strcpy(rider->team, get_column_str(buf, 2, val));
-		set_group_name(rider->group_name, rider->group);
+		//set_group_name(rider->group_name, rider->group);
 		i++;
 		HIBPGroup* g = get_group(groups, rider->group);	
 		if(g == NULL){
 			g = (HIBPGroup*)malloc(sizeof(HIBPGroup));
+			//INIT_LIST_HEAD(&group->list);
 			g->nriders=0;
 			g->group_no = rider->group;
 			add_group(groups, g);

@@ -62,7 +62,7 @@ do{\
 typedef struct
 {
     char    str[32];
-}HIBPGroup;
+}HIBPGroupName;
 
 typedef struct
 {
@@ -85,7 +85,7 @@ enum
     MAX_GROUPS 	= 11
 };
 
-extern HIBPGroup groupStr[];
+extern HIBPGroupName groupStr[];
 
 extern HIBPTitle titleStr[];
 

@@ -1,17 +1,28 @@
 
-#include "report.h"
+#include "riders.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
-HIBPStageResult* stage_find_result(HIBPStageResultView* view, int rider_no, int stage);
-void init_stage_result(HIBPStageResult* r);
 
+void set_group_name(char* gname, int No)
+{
+	strcpy(gname, "test group");
+}
 int main()
 {
-	printf("test report...\n");
-	HIBPReportView* view = create_report_view(3);
-	assert(view->nitems == 3 );
+	printf("test riders...\n");
+
+	HIBPGroupList groups;
+
+	HIBPGroup g;
+	g.group_no=0;
+	add_group(&groups, &g);
+	assert(get_groups_count(&groups)==1);
+	HIBPGroup* pg = get_group(&groups, 0);
+	assert(pg == &g);
+
 
 
 	return 0;
