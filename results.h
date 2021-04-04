@@ -16,6 +16,7 @@ typedef struct
 
 typedef void (*update_time_f)(void* result, HIBPTime* t);
 typedef void (*on_recv_time_f)(void* result_view, HIBPTime* t);
+typedef void* (*get_result_f)(void* result_view, int rider_no);
 void free_result(void* result);
 
 
@@ -61,6 +62,7 @@ typedef struct
 {
 	//operations
 	on_recv_time_f on_recv_time;
+    get_result_f get_result;
 
 	Result* results;	
 	int nrows;

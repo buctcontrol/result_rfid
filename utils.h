@@ -15,6 +15,8 @@ extern void file_puts(const char* buf);
 extern char* file_gets(char* buf, int size);
 extern void file_close();
 
+extern char* to_timestr(uint64_t ms);
+
 
 
 //extern struct interface * cliFindClassById(int nClsId);

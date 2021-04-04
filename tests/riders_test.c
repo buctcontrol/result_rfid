@@ -43,7 +43,7 @@ int main()
     HIBPRiderInfo* r3 = get_rider(g, 602);
     assert(r3!=NULL);
     assert(r3->number == 602);
-    printf("rider{%d,%s,%s,%d,%s]\n", r3->number,r3->name,r3->team,r3->group,r3->group_name);
+    printf("rider{%d,%s,%s,%d,%s}\n", r3->number,r3->name,r3->team,r3->group,r3->group_name);
 
     //free_grouplist(groups);
 

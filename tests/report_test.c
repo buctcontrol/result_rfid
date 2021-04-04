@@ -4,9 +4,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-HIBPStageResult* stage_find_result(HIBPStageResultView* view, int rider_no, int stage);
-void init_stage_result(HIBPStageResult* r);
-
 int main()
 {
 	printf("test report...\n");

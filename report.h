@@ -4,12 +4,13 @@
 #define REPORT_H
 
 #include "riders.h"
+#include "results.h"
 
 //////////////////////////////////////////////////////////////
 typedef struct 
 {
     HIBPRiderInfo* rider;
-    Reuslt* result;
+    Result* result;
 	int rank;
 	int score;
     //Additional* add;
@@ -27,6 +28,6 @@ typedef struct
 
 extern HIBPReportView* create_report_view(int nriders);
 
-extern void update_report(HIBPRacing* racing);
+extern void stage_update_report(HIBPReportView* report, HIBPGroupList* groups, void* results);
 
 #endif /*REPORT_H*/

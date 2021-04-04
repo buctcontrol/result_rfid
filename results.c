@@ -119,7 +119,16 @@ void stage_on_recv_time(void* view, HIBPTime* t)
 	//calc_gap_time(get_groups(), get_groups_count());
 }
 
+Result* stage_get_result_f(void* result_view, int rider_no)
+{
+	HIBPStageResultView* rview =(HIBPStageResultView*)view;
+	for(int i=0; i<rview->nrows; i++){
+       if(rview->results[i].rider_no == rider_no)
+           return rview->results+i;
+    }
 
+    return NULL;
+}
 
 void free_result(void* result)
 {
@@ -177,6 +186,7 @@ void* alloc_stage_result_view(int nrows, int ncols)
 	HIBPResultTable* table = alloc_result_table(nrows, ncols);
 	HIBPStageResultView* view = (HIBPStageResultView*)malloc(sizeof(HIBPStageResultView));
 	view->on_recv_time = stage_on_recv_time;
+	view->get_result = stage_get_result;
 	view->nrows = nrows;
 	view->results = (Result*)malloc(sizeof(Result)); 
 	view->table = table;

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "interface.h"
 
 char** strsplit(const char* str, const char* delim, int *count)
@@ -117,6 +118,18 @@ void file_close()
 	fclose(fp);	
 }
 
+static char tstr[16]={0};
+static uint64_t ms_per_hour=60*60*1000;
+static uint64_t ms_per_min=60*1000;
+char* to_timestr(uint64_t ms)
+{
+   uint64_t hours = ms/ms_per_hour+8; 
+   uint64_t mins = (ms-hours*ms_per_hour)/ms_per_min;
+   uint64_t secs = (ms-hours*ms_per_hour-mins*ms_per_min)/1000;
+   uint64_t mss = ms-hours*ms_per_hour-mins*ms_per_min-secs*1000;
+   sprintf(tstr, "%02d:%02d:%02d.%03d", hours, mins, secs, mss);
+   return tstr;
+}
 
 /*
 

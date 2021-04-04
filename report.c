@@ -1,9 +1,10 @@
 
 #include "report.h"
-#include "results.h.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "list.h"
+#include "utils.h"
+#include <string.h>
 
 HIBPReportView* create_report_view(int nriders)
 {
@@ -12,21 +13,27 @@ HIBPReportView* create_report_view(int nriders)
 	view->items = (HIBPReportItem*)malloc(sizeof(HIBPReportItem*)*nriders); 
 }
 
+typedef int (*compare_f)(const HIBPReportItem* src, const HIBPReportItem* dst);
+static int stage_compare_rider_score(const HIBPReportItem* src, const HIBPReportItem* dst);
+static void stage_sort_report(HIBPReportView* report, compare_f fcompare);
+static void rank_report(HIBPReportView* report);
+static void stage_save_report(HIBPReportView* report, const char* filename);
+static int stage_calc_total_score(Result* result);
 void stage_update_report(HIBPReportView* report, HIBPGroupList* groups, void* results)
 {
 	HIBPStageResultView* result_view = (HIBPStageResultView*)results;
 	int k=0;
 	struct list_head* pos = NULL;
-	list_for_each(pos, &groups->groups.list)
+	list_for_each(pos, &groups->g_head.list)
 	{
-		HIBPGROUP* group = list_entry(pos, HIBPGROUP, list);
+		HIBPGroup* group = list_entry(pos, HIBPGroup, list);
 		struct list_head* posr = NULL;
-		list_for_each(posr, &group->riders.list)
+		list_for_each(posr, &group->r_head.list)
 		{
 			HIBPRiderInfo* rider = list_entry(posr, HIBPRiderInfo, list);
-			report.items[k].rider = rider;
-			report.items[k].result = result_view->get_result(rider->number);
-			report.items[k].score = stage_calc_total_score(result);
+			report->items[k].rider = rider;
+			report->items[k].result = result_view->get_result(result_view, rider->number);
+			report->items[k].score = stage_calc_total_score(report->items[k].result);
 			k++;
 		}
 	}
@@ -36,14 +43,28 @@ void stage_update_report(HIBPReportView* report, HIBPGroupList* groups, void* re
 	stage_save_report(report, "result.csv");
 }
 
+static int stage_calc_total_score(Result* result)
+{
+    int score=0;
+    int nstages = result->row->ncols;
+	for(int k=0; k<nstages; k++){
+	    HIBPStageResult* r = (HIBPStageResult*)result->row->cols[k];
+        score += r->score;
+    }
+
+    return score;
+}
+
 static int stage_compare_rider_score(const HIBPReportItem* src, const HIBPReportItem* dst)
 {
 	if(dst->score > src->score) 
 	 	return 1;	
 
+    int last_stage = dst->result->row->ncols-2;
+	HIBPStageResult* src_r = (HIBPStageResult*)src->result->row->cols[last_stage];
+	HIBPStageResult* dst_r = (HIBPStageResult*)dst->result->row->cols[last_stage];
 	if(dst->score == src->score){ 
-		if(dst->result->row->cols[last_stage]->score > 
-		   src->result->row->cols[last_stage]->score)
+		if(dst_r->score > src_r->score)
 		{
 			return 1;
 		}
@@ -61,7 +82,7 @@ static void swap_item(HIBPReportItem* src, HIBPReportItem* dst)
 
 static void stage_sort_report(HIBPReportView* report, compare_f fcompare)
 {
-	HIBPRiderInfo* min = NULL;
+	HIBPReportItem* min = NULL;
 	int n=0;
 	for(int i=0; i<report->ngroups; i++){
 		for(int j=0; j<report->groups[i]; j++){
@@ -69,7 +90,7 @@ static void stage_sort_report(HIBPReportView* report, compare_f fcompare)
 			n++;
 			min = cur;
 			for(int k=n+1; k<report->groups[i]; k++){
-				HIBPReportItem* item = report->items+k
+				HIBPReportItem* item = report->items+k;
 				if( fcompare(min, item) ) 
 					min = item;
 			}
@@ -113,14 +134,14 @@ static void stage_save_report(HIBPReportView* report, const char* filename)
 			sprintf(rank,"%d", ritem->rank); 
 
 		sprintf(buf, "%s,%s,%03d,%s,%s", r->group_name, rank, r->number, r->name, r->team);
-		int nstages = ritem->row->ncol;
+		int nstages = ritem->result->row->ncols;
 		for(int k=0; k<nstages; k++){
-			HIBPStageResult* sr = ritem->row[k];
+			HIBPStageResult* sr = (HIBPStageResult*)ritem->result->row->cols[k];
 			sprintf(buf,"%s,%s,%s,%s,%s,%s,%s,%d", buf,
-				to_timestr(sr->transfer_result.begin_time),
+				to_timestr(sr->transfer_result.start_time),
 				to_timestr(sr->transfer_result.end_time),
-				sr->qulify==0?"DNQ":to_timestr(sr->transfer_result.result_time),
-				to_timestr(sr->stage_result.begin_time),
+				sr->qualify==0?"DNQ":to_timestr(sr->transfer_result.result_time),
+				to_timestr(sr->stage_result.start_time),
 				to_timestr(sr->stage_result.end_time),
 				to_timestr(sr->stage_result.result_time),
 				sr->score);
