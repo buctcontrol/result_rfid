@@ -2,7 +2,7 @@
 
 #include "global.h"
 
-HIBPGroup groupStr[] = {
+HIBPGroupName groupStr[] = {
     {"荣誉领骑"},
     {"新人组"},
     {"硬尾组"},
