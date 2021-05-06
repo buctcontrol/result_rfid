@@ -40,14 +40,14 @@ static void sort_by_points(HIBPGroupRider* groups, int groups_count)
 
 static void read_report(HIBPGroupRider* groups, const char* fname) 
 {
-	char buf[256], tmp[64];
+	char buf[1024], tmp[64];
 	int i=0;
 	int gid_tmp=-1;
 	if( !file_open(fname, "r"))
 		return;
 
-	file_gets(buf, 256);//skip head line
-	while( file_gets(buf, 256) != NULL)
+	file_gets(buf, 1024);//skip head line
+	while( file_gets(buf, 1024) != NULL)
 	{
 		int gid = get_column_i(buf, 0);
 		if(gid != gid_tmp){
@@ -134,7 +134,7 @@ static void save_total_report(HIBPGroupRider* groups, int groups_count, int nsta
 		return;
 	}
 
-	char buf[256];
+	char buf[1024];
 	for(int i=0; i<MAX_GROUPS; i++){
 		for(int j=0; j<groups[i].nriders; j++){
 			HIBPRiderInfo* r= groups[i].riders+j;

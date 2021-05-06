@@ -158,6 +158,23 @@ int read_finish(const char* fname)
 
 static void calc_time(PINTERFACE pCur)
 {
+    
+    //if end time < start time mark DNF
+	if(pCur->end_sec < pCur->sec)
+    {
+        pCur->end_filled=0;
+        return;
+    }
+
+    if(pCur->end_sec == pCur->sec)
+    {
+        if(pCur->end_msec < pCur->msec)
+        {
+            pCur->end_filled=0;
+            return;
+        }
+    }
+
 	if(pCur->end_msec < pCur->msec)
 	{
 	    	pCur->pure_sec = (pCur->end_sec - 1) - pCur->sec;
